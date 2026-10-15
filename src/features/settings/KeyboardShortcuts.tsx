@@ -2,7 +2,6 @@ import React from 'react'
 import prettier from 'prettier/standalone'
 import parserMarkdown from 'prettier/parser-markdown'
 
-import { useTempState } from '@/contexts/TempStateContext'
 import { Folder, Shortcuts } from '@/utils/enums'
 import { downloadNotes, getActiveNote, newNoteHandlerHelper } from '@/utils/helpers'
 import { useKey } from '@/utils/hooks'
@@ -14,7 +13,7 @@ export const KeyboardShortcuts: React.FC = () => {
   // Stores
   // ===========================================================================
 
-  const { categories } = useCategoriesStore()
+  const { categories, addingTempCategory, setAddingTempCategory } = useCategoriesStore()
   const {
     activeCategoryId,
     activeFolder,
@@ -49,12 +48,6 @@ export const KeyboardShortcuts: React.FC = () => {
   const _toggleDarkTheme = () => toggleDarkTheme()
   const _updateCodeMirrorOption = (key: string, value: string) =>
     updateCodeMirrorOption({ key, value })
-
-  // ===========================================================================
-  // State
-  // ===========================================================================
-
-  const { addingTempCategory, setAddingTempCategory } = useTempState()
 
   // ===========================================================================
   // Handlers

@@ -3,11 +3,11 @@ import { ArrowUp, Download, Star, Trash, X, Edit2, Clipboard } from '@/icons'
 
 import { LabelText } from '@/constants/LabelText'
 import { TestID } from '@/constants/TestID'
-import { ContextMenuOption } from '@/components/NoteList/ContextMenuOption'
+import { ContextMenuOption } from '@/features/notes/components/ContextMenuOption'
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
 import { Folder, ContextMenuEnum } from '@/utils/enums'
 import { CategoryItem, NoteItem } from '@/types'
-import { MenuUtilitiesContext } from '@/containers/ContextMenu'
+import { MenuUtilitiesContext } from '@/features/notes/ContextMenu'
 import { useCategoriesStore, useNotesStore } from '@/store'
 
 export interface ContextMenuOptionsProps {

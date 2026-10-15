@@ -40,7 +40,8 @@ export interface CategoriesStoreState {
   error: string
   loading: boolean
 
-  // Actions
+  addingTempCategory: boolean
+  setAddingTempCategory: (adding: boolean) => void
   addCategory: (category: CategoryItem) => void
   importCategories: (categories: CategoryItem[]) => void
   updateCategory: (category: CategoryItem) => void
@@ -60,6 +61,9 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
   },
   error: '',
   loading: false,
+  addingTempCategory: false,
+
+  setAddingTempCategory: (adding) => set({ addingTempCategory: adding }),
 
   addCategory: (category) => {
     set((state) => {

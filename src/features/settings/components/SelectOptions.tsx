@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Select } from '../Select'
+import { Select } from '@/components/ui/Select'
 
 export interface OptionProps {
   title: string

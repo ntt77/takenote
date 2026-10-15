@@ -3,13 +3,12 @@ import { Droppable } from '@hello-pangea/dnd'
 
 import { LabelText } from '@/constants/LabelText'
 import { TestID } from '@/constants/TestID'
-import { CategoryOption } from '@/containers/CategoryOption'
+import { CategoryOption } from '@/features/sidebar/CategoryOption'
 import { shouldOpenContextMenu } from '@/utils/helpers'
 import { ReactMouseEvent, ReactSubmitEvent } from '@/types'
-import { useTempState } from '@/contexts/TempStateContext'
-import { AddCategoryForm } from '@/components/AppSidebar/AddCategoryForm'
-import { AddCategoryButton } from '@/components/AppSidebar/AddCategoryButton'
-import { CollapseCategoryListButton } from '@/components/AppSidebar/CollapseCategoryButton'
+import { AddCategoryForm } from '@/features/sidebar/components/AddCategoryForm'
+import { AddCategoryButton } from '@/features/sidebar/components/AddCategoryButton'
+import { CollapseCategoryListButton } from '@/features/sidebar/components/CollapseCategoryButton'
 import { useCategoriesStore } from '@/store'
 
 export const CategoryList: React.FC = () => {
@@ -23,6 +22,8 @@ export const CategoryList: React.FC = () => {
     setCategoryEdit,
     updateCategory,
     addCategory,
+    addingTempCategory,
+    setAddingTempCategory,
   } = useCategoriesStore()
 
   const _setCategoryEdit = (categoryId: string, tempName: string) =>
@@ -41,12 +42,6 @@ export const CategoryList: React.FC = () => {
   const [optionsId, setOptionsId] = useState('')
   const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 })
   const [isCategoryListOpen, setCategoryListOpen] = useState(true)
-
-  // ===========================================================================
-  // Context
-  // ===========================================================================
-
-  const { addingTempCategory, setAddingTempCategory } = useTempState()
 
   // ===========================================================================
   // Handlers

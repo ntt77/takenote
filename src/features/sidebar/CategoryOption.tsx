@@ -8,7 +8,7 @@ import { determineCategoryClass } from '@/utils/helpers'
 import { iconColor } from '@/utils/constants'
 import { ContextMenuEnum } from '@/utils/enums'
 import { getNotesSorter } from '@/utils/notesSortStrategies'
-import { ContextMenu } from '@/containers/ContextMenu'
+import { ContextMenu } from '@/features/notes/ContextMenu'
 import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 interface CategoryOptionProps {

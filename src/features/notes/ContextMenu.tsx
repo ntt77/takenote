@@ -1,8 +1,8 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect, useState, createContext } from 'react'
 
-import { SelectCategory } from '@/components/NoteList/SelectCategory'
-import { ContextMenuOptions } from '@/containers/ContextMenuOptions'
+import { SelectCategory } from '@/features/notes/components/SelectCategory'
+import { ContextMenuOptions } from '@/features/notes/ContextMenuOptions'
 import { NoteItem, CategoryItem } from '@/types'
 import { ContextMenuEnum } from '@/utils/enums'
 import { isDraftNote } from '@/utils/helpers'

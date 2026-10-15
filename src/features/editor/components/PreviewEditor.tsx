@@ -6,7 +6,7 @@ import { Folder } from '@/utils/enums'
 import { NoteItem } from '@/types'
 import { useNotesStore } from '@/store'
 
-import { uuidPlugin } from '../../utils/reactMarkdownPlugins'
+import { uuidPlugin } from '@/utils/reactMarkdownPlugins'
 
 import NoteLink from './NoteLink'
 

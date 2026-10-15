@@ -13,9 +13,9 @@ import {
 } from '@codemirror/view'
 
 import { getActiveNote } from '@/utils/helpers'
-import { NoteMenuBar } from '@/containers/NoteMenuBar'
-import { EmptyEditor } from '@/components/Editor/EmptyEditor'
-import { PreviewEditor } from '@/components/Editor/PreviewEditor'
+import { NoteMenuBar } from '@/features/editor/NoteMenuBar'
+import { EmptyEditor } from '@/features/editor/components/EmptyEditor'
+import { PreviewEditor } from '@/features/editor/components/PreviewEditor'
 import { useNotesStore, useSettingsStore } from '@/store'
 
 const linkMatcher = new MatchDecorator({
