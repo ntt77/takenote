@@ -6,8 +6,6 @@ import {
   Star,
   Trash2,
   Download,
-  RefreshCw,
-  Loader,
   Settings,
   Sun,
   Moon,
@@ -15,8 +13,6 @@ import {
 } from 'react-feather'
 
 import { TestID } from '@resources/TestID'
-import { LastSyncedNotification } from '@/components/LastSyncedNotification'
-import { NoteItem, CategoryItem } from '@/types'
 import {
   toggleSettingsModal,
   togglePreviewMarkdown,
@@ -24,9 +20,8 @@ import {
   updateCodeMirrorOption,
 } from '@/slices/settings'
 import { toggleFavoriteNotes, toggleTrashNotes } from '@/slices/note'
-import { getCategories, getNotes, getSync, getSettings } from '@/selectors'
+import { getCategories, getNotes, getSettings } from '@/selectors'
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
-import { sync } from '@/slices/sync'
 
 export const NoteMenuBar = () => {
   // ===========================================================================
@@ -35,7 +30,6 @@ export const NoteMenuBar = () => {
 
   const { notes, activeNoteId } = useSelector(getNotes)
   const { categories } = useSelector(getCategories)
-  const { syncing, lastSynced, pendingSync } = useSelector(getSync)
   const { darkTheme } = useSelector(getSettings)
 
   // ===========================================================================
@@ -77,8 +71,6 @@ export const NoteMenuBar = () => {
   const _togglePreviewMarkdown = () => dispatch(togglePreviewMarkdown())
   const _toggleTrashNotes = (noteId: string) => dispatch(toggleTrashNotes(noteId))
   const _toggleFavoriteNotes = (noteId: string) => dispatch(toggleFavoriteNotes(noteId))
-  const _sync = (notes: NoteItem[], categories: CategoryItem[]) =>
-    dispatch(sync({ notes, categories }))
   const _toggleSettingsModal = () => dispatch(toggleSettingsModal())
   const _toggleDarkTheme = () => dispatch(toggleDarkTheme())
   const _updateCodeMirrorOption = (key: string, value: any) =>
@@ -91,7 +83,6 @@ export const NoteMenuBar = () => {
   const downloadNotesHandler = () => downloadNotes([activeNote], categories)
   const favoriteNoteHandler = () => _toggleFavoriteNotes(activeNoteId)
   const trashNoteHandler = () => _toggleTrashNotes(activeNoteId)
-  const syncNotesHandler = () => _sync(notes, categories)
   const settingsHandler = () => _toggleSettingsModal()
   const toggleDarkThemeHandler = () => {
     _toggleDarkTheme()
@@ -151,19 +142,6 @@ export const NoteMenuBar = () => {
         <div />
       )}
       <nav>
-        <LastSyncedNotification datetime={lastSynced} pending={pendingSync} syncing={syncing} />
-        <button
-          className="note-menu-bar-button"
-          onClick={syncNotesHandler}
-          data-testid={TestID.TOPBAR_ACTION_SYNC_NOTES}
-        >
-          {syncing ? (
-            <Loader aria-hidden="true" size={18} className="rotating-svg" />
-          ) : (
-            <RefreshCw aria-hidden="true" size={18} />
-          )}
-          <span className="sr-only">Sync notes</span>
-        </button>
         <button className="note-menu-bar-button" onClick={toggleDarkThemeHandler}>
           {darkTheme ? <Sun aria-hidden="true" size={18} /> : <Moon aria-hidden="true" size={18} />}
           <span className="sr-only">Themes</span>

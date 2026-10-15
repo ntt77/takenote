@@ -11,3 +11,4 @@ npm-debug.log*
 .coveralls.yml
 **/*/videos
 tests/e2e/videos
+package-lock.json

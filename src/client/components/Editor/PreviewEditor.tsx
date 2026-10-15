@@ -61,7 +61,7 @@ export const PreviewEditor: React.FC<PreviewEditorProps> = ({ noteText, directio
     <ReactMarkdown
       plugins={[uuidPlugin]}
       renderers={{
-        uuid: ({ value }) => returnNoteLink(value),
+        uuid: ({ value }: { value: string }) => returnNoteLink(value),
       }}
       linkTarget="_blank"
       className={`previewer previewer_direction-${directionText}`}

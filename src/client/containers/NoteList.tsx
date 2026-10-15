@@ -161,11 +161,9 @@ export const NoteList: React.FC = () => {
         {showEmptyTrash && (
           <NoteListButton
             dataTestID={TestID.EMPTY_TRASH_BUTTON}
-            label="Empty"
+            label="Empty Trash"
             handler={() => _permanentlyEmptyTrash()}
-          >
-            Empty Trash
-          </NoteListButton>
+          />
         )}
       </div>
       <div data-testid={TestID.NOTE_LIST} className="note-list">

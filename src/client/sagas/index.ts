@@ -1,12 +1,9 @@
 import { all, put, takeLatest, select } from 'redux-saga/effects'
-import dayjs from 'dayjs'
-import axios from 'axios'
 
-import { requestCategories, requestNotes, requestSettings, saveState, saveSettings } from '@/api'
+import { requestCategories, requestNotes, requestSettings, saveSettings } from '@/api'
 import { loadCategories, loadCategoriesError, loadCategoriesSuccess } from '@/slices/category'
 import { loadNotes, loadNotesError, loadNotesSuccess } from '@/slices/note'
-import { sync, syncError, syncSuccess } from '@/slices/sync'
-import { login, loginSuccess, loginError, logout, logoutSuccess } from '@/slices/auth'
+import { login, loginSuccess, logout, logoutSuccess } from '@/slices/auth'
 import {
   updateCodeMirrorOption,
   loadSettingsSuccess,
@@ -17,79 +14,43 @@ import {
   toggleSettingsModal,
   updateNotesSortStrategy,
 } from '@/slices/settings'
-import { SyncAction } from '@/types'
 import { getSettings } from '@/selectors'
 
-const isDemo = process.env.DEMO
-
-// Hit the Express endpoint to get the current GitHub user from the cookie
 function* loginUser() {
-  try {
-    if (isDemo) {
-      yield put(loginSuccess({ name: 'Demo User' }))
-    } else {
-      const { data } = yield axios('/api/auth/login')
-
-      yield put(loginSuccess(data))
-    }
-  } catch (error) {
-    yield put(loginError(error.message))
-  }
+  yield put(loginSuccess({ name: 'User' }))
 }
 
-// Remove the access token cookie from Express
 function* logoutUser() {
-  try {
-    if (isDemo) {
-      yield put(logoutSuccess())
-    } else {
-      yield axios('/api/auth/logout')
-    }
-
-    yield put(logoutSuccess())
-  } catch (error) {
-    yield put(logoutSuccess())
-  }
+  yield put(logoutSuccess())
 }
 
-// Get notes from API
-function* fetchNotes() {
-  let data
+// Get notes from localStorage
+function* fetchNotes(): Generator<any, void, any> {
   try {
-    if (isDemo) {
-      data = yield requestNotes()
-    } else {
-      data = (yield axios('/api/sync/notes')).data
-    }
+    const data = yield requestNotes()
     const { notesSortKey } = yield select(getSettings)
 
     yield put(loadNotesSuccess({ notes: data, sortOrderKey: notesSortKey }))
-  } catch (error) {
+  } catch (error: any) {
     yield put(loadNotesError(error.message))
   }
 }
 
-// Get categories from API
-function* fetchCategories() {
-  let data
+// Get categories from localStorage
+function* fetchCategories(): Generator<any, void, any> {
   try {
-    if (isDemo) {
-      data = yield requestCategories()
-    } else {
-      data = (yield axios('/api/sync/categories')).data
-    }
+    const data = yield requestCategories()
 
     yield put(loadCategoriesSuccess(data))
-  } catch (error) {
+  } catch (error: any) {
     yield put(loadCategoriesError(error.message))
   }
 }
 
-// Get settings from API
-function* fetchSettings() {
-  let data
+// Get settings from localStorage
+function* fetchSettings(): Generator<any, void, any> {
   try {
-    data = yield requestSettings()
+    const data = yield requestSettings()
 
     yield put(loadSettingsSuccess(data))
   } catch (error) {
@@ -97,20 +58,7 @@ function* fetchSettings() {
   }
 }
 
-function* syncData({ payload }: SyncAction) {
-  try {
-    if (isDemo) {
-      yield saveState(payload)
-    } else {
-      yield axios.post('/api/sync', payload)
-    }
-    yield put(syncSuccess(dayjs().format()))
-  } catch (error) {
-    yield put(syncError(error.message))
-  }
-}
-
-function* syncSettings() {
+function* persistSettings(): Generator<any, void, any> {
   try {
     const settings = yield select(getSettings)
 
@@ -118,7 +66,6 @@ function* syncSettings() {
   } catch (error) {}
 }
 
-// If any of these functions are dispatched, invoke the appropriate saga
 function* rootSaga() {
   yield all([
     takeLatest(login.type, loginUser),
@@ -126,7 +73,6 @@ function* rootSaga() {
     takeLatest(loadNotes.type, fetchNotes),
     takeLatest(loadCategories.type, fetchCategories),
     takeLatest(loadSettings.type, fetchSettings),
-    takeLatest(sync.type, syncData),
     takeLatest(
       [
         toggleDarkTheme.type,
@@ -135,7 +81,7 @@ function* rootSaga() {
         toggleSettingsModal.type,
         updateNotesSortStrategy.type,
       ],
-      syncSettings
+      persistSettings
     ),
   ])
 }

@@ -22,7 +22,7 @@ const useTempState = () => {
   return context
 }
 
-const TempStateProvider: FunctionComponent = ({ children }) => {
+const TempStateProvider: FunctionComponent<{ children?: React.ReactNode }> = ({ children }) => {
   const [addingTempCategory, setAddingTempCategory] = useState(false)
 
   const value: TempStateContextInterface = {

@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import dayjs from 'dayjs'
 
-import { NoteItem, SyncPayload, SettingsState } from '@/types'
+import { NoteItem, StatePayload, SettingsState } from '@/types'
 
 const scratchpadNote = {
   id: uuid(),
@@ -90,16 +90,10 @@ const getUserNotes = () => (resolve: PromiseCallback, reject: PromiseCallback) =
   }
 }
 
-export const saveState = ({ categories, notes }: SyncPayload) =>
-  new Promise((resolve) => {
-    localStorage.setItem('categories', JSON.stringify(categories))
-    localStorage.setItem('notes', JSON.stringify(notes))
-
-    resolve({
-      categories: JSON.parse(localStorage.getItem('categories') || '[]'),
-      notes: JSON.parse(localStorage.getItem('notes') || '[]'),
-    })
-  })
+export const saveState = ({ categories, notes }: StatePayload) => {
+  localStorage.setItem('categories', JSON.stringify(categories))
+  localStorage.setItem('notes', JSON.stringify(notes))
+}
 
 export const saveSettings = ({ isOpen, ...settings }: SettingsState) =>
   Promise.resolve(localStorage.setItem('settings', JSON.stringify(settings)))

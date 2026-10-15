@@ -5,12 +5,8 @@ import { Helmet, HelmetProvider } from 'react-helmet-async'
 
 import { LandingPage } from '@/components/LandingPage'
 import { TakeNoteApp } from '@/containers/TakeNoteApp'
-import { PublicRoute } from '@/router/PublicRoute'
-import { PrivateRoute } from '@/router/PrivateRoute'
 import { getAuth } from '@/selectors'
 import { login } from '@/slices/auth'
-
-const isDemo = process.env.DEMO
 
 export const App: React.FC = () => {
   // ===========================================================================
@@ -56,18 +52,8 @@ export const App: React.FC = () => {
       </Helmet>
 
       <Switch>
-        {isDemo ? (
-          <>
-            <Route exact path="/" component={LandingPage} />
-            <Route path="/app" component={TakeNoteApp} />
-          </>
-        ) : (
-          <>
-            <PublicRoute exact path="/" component={LandingPage} />
-            <PrivateRoute path="/app" component={TakeNoteApp} />
-          </>
-        )}
-
+        <Route exact path="/" component={LandingPage} />
+        <Route path="/app" component={TakeNoteApp} />
         <Redirect to="/" />
       </Switch>
     </HelmetProvider>

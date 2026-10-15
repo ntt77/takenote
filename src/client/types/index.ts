@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { Folder, NotesSortKey } from '@/utils/enums'
-import { sync } from '@/slices/sync'
 
 //==============================================================================
 // Items
@@ -73,33 +72,16 @@ export interface SettingsState {
   codeMirrorOptions: { [key: string]: any }
 }
 
-export interface SyncState {
-  syncing: boolean
-  lastSynced: string
-  error: string
-  pendingSync: boolean
-}
-
 export interface RootState {
   authState: AuthState
   categoryState: CategoryState
   noteState: NoteState
   settingsState: SettingsState
-  syncState: SyncState
 }
 
-//==============================================================================
-// API
-//==============================================================================
-
-export interface SyncPayload {
+export interface StatePayload {
   categories: CategoryItem[]
   notes: NoteItem[]
-}
-
-export interface SyncAction {
-  type: typeof sync.type
-  payload: SyncPayload
 }
 
 //==============================================================================

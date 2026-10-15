@@ -5,20 +5,6 @@ import lightScreen from '@resources/assets/screenshot-light.png'
 import darkScreen from '@resources/assets/screenshot-dark.png'
 import squareLogo from '@resources/assets/logo-square-white.svg'
 import logo from '@resources/assets/logo-square-color.svg'
-import githubLogo from '@resources/assets/github-logo.png'
-
-const clientId = process.env.CLIENT_ID
-const isDemo = process.env.DEMO
-
-const loginButton = (text: string) => (
-  <a
-    className="button github-button"
-    href={`https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo`}
-  >
-    <img src={githubLogo} />
-    {text}
-  </a>
-)
 
 export const LandingPage: React.FC = () => {
   return (
@@ -36,27 +22,15 @@ export const LandingPage: React.FC = () => {
               <p className="p-mobile">
                 TakeNote is not currently supported for tablet and mobile devices.
               </p>
-            ) : isDemo ? (
-              <div className="new-signup">
-                <div>
-                  <p>
-                    TakeNote is only available as a demo. Your notes will be saved to local storage
-                    and <b>not</b> persisted in any database or cloud.
-                  </p>
-                  <a className="button" href="/app">
-                    View Demo
-                  </a>
-                </div>
-              </div>
             ) : (
               <div className="new-signup">
                 <div>
                   <p>
-                    TakeNote does not have a database or users. It simply links with your GitHub
-                    account for authentication, and stores the data in a private{' '}
-                    <code>takenotes-data</code> repo.
+                    TakeNote stores your notes directly in your browser's local storage. Fast, private, and zero latency.
                   </p>
-                  <div className="cta">{loginButton('Sign Up with GitHub')}</div>
+                  <a className="button" href="/app">
+                    Open App
+                  </a>
                 </div>
               </div>
             )}
@@ -109,15 +83,11 @@ export const LandingPage: React.FC = () => {
                 <strong>No WYSIWYG</strong> - made for developers, by developers
               </li>
               <li>
-                <strong>No database</strong> - notes are only stored in the browser&#39;s local
-                storage and are available for download and export to you alone
+                <strong>Local-First</strong> - notes are stored directly in your browser's local
+                storage with zero latency
               </li>
               <li>
-                <strong>No tracking or analytics</strong> - &#39;nuff said
-              </li>
-              <li>
-                <strong>GitHub integration</strong> - self-hosted option is available for
-                auto-syncing to a GitHub repository (not available in the demo)
+                <strong>No tracking or analytics</strong> - 'nuff said
               </li>
             </ul>
           </div>
