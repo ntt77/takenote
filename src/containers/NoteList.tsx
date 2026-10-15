@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { MoreHorizontal, Book, Star, Folder as FolderIcon } from '@/icons'
 
-import { TestID } from '@resources/TestID'
+import { TestID } from '@/constants/TestID'
 import { Folder, Shortcuts, ContextMenuEnum } from '@/utils/enums'
 import { NoteListButton } from '@/components/NoteList/NoteListButton'
 import { SearchBar } from '@/components/NoteList/SearchBar'
@@ -38,10 +38,7 @@ export const NoteList: React.FC = () => {
   const _pruneNotes = () => pruneNotes()
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
     updateActiveNote({ noteId, multiSelect })
-  const _searchNotes = debounceEvent(
-    (val: string) => searchNotes(val),
-    100
-  )
+  const _searchNotes = debounceEvent((val: string) => searchNotes(val), 100)
 
   // ===========================================================================
   // Refs

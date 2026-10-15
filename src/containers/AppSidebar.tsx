@@ -1,8 +1,8 @@
 import React from 'react'
 import { Plus } from '@/icons'
 
-import { LabelText } from '@resources/LabelText'
-import { TestID } from '@resources/TestID'
+import { LabelText } from '@/constants/LabelText'
+import { TestID } from '@/constants/TestID'
 import { ActionButton } from '@/components/AppSidebar/ActionButton'
 import { FolderOption } from '@/components/AppSidebar/FolderOption'
 import { ScratchpadOption } from '@/components/AppSidebar/ScratchpadOption'
@@ -39,8 +39,7 @@ export const AppSidebar: React.FC = () => {
     updateActiveNote({ noteId, multiSelect })
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) =>
     updateSelectedNotes({ noteId, multiSelect })
-  const _swapFolder = (folder: Folder) =>
-    swapFolder({ folder, sortOrderKey: notesSortKey })
+  const _swapFolder = (folder: Folder) => swapFolder({ folder, sortOrderKey: notesSortKey })
   const _togglePreviewMarkdown = () => togglePreviewMarkdown()
   const _assignTrashToNotes = (noteId: string) => assignTrashToNotes(noteId)
   const _unassignTrashFromNotes = (noteId: string) => unassignTrashFromNotes(noteId)
@@ -73,10 +72,7 @@ export const AppSidebar: React.FC = () => {
         text={LabelText.NEW_NOTE}
       />
       <section className="app-sidebar-main">
-        <ScratchpadOption
-          active={activeFolder === Folder.SCRATCHPAD}
-          swapFolder={_swapFolder}
-        />
+        <ScratchpadOption active={activeFolder === Folder.SCRATCHPAD} swapFolder={_swapFolder} />
         <FolderOption
           active={activeFolder === Folder.ALL}
           swapFolder={_swapFolder}

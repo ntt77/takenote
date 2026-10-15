@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { TestID } from '@resources/TestID'
+import { TestID } from '@/constants/TestID'
 import { NoteItem, CategoryItem } from '@/types'
 import { isDraftNote } from '@/utils/helpers'
 

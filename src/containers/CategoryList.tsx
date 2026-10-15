@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Droppable } from '@hello-pangea/dnd'
 
-import { LabelText } from '@resources/LabelText'
-import { TestID } from '@resources/TestID'
+import { LabelText } from '@/constants/LabelText'
+import { TestID } from '@/constants/TestID'
 import { CategoryOption } from '@/containers/CategoryOption'
 import { shouldOpenContextMenu } from '@/utils/helpers'
 import { ReactMouseEvent, ReactSubmitEvent } from '@/types'

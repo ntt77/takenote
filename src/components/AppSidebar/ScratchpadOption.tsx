@@ -1,8 +1,8 @@
 import React from 'react'
 import { Edit } from '@/icons'
 
-import { TestID } from '@resources/TestID'
-import { LabelText } from '@resources/LabelText'
+import { TestID } from '@/constants/TestID'
+import { LabelText } from '@/constants/LabelText'
 import { Folder } from '@/utils/enums'
 import { iconColor } from '@/utils/constants'
 

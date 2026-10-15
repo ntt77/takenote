@@ -7,7 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
-      '@resources': path.resolve(import.meta.dirname, './src/resources'),
     },
   },
   server: {
@@ -21,7 +20,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('redux')) {
+            if (id.includes('react')) {
               return 'react-vendor'
             }
             if (id.includes('codemirror')) {

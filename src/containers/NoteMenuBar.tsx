@@ -11,7 +11,7 @@ import {
   Clipboard as ClipboardCmp,
 } from '@/icons'
 
-import { TestID } from '@resources/TestID'
+import { TestID } from '@/constants/TestID'
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
 import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 

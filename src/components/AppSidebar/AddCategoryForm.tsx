@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { TestID } from '@resources/TestID'
+import { TestID } from '@/constants/TestID'
 import { ReactSubmitEvent } from '@/types'
 
 export interface AddCategoryFormProps {

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { NoteItem } from '@/types'
 import { Errors } from '@/utils/enums'
-import { TestID } from '@resources/TestID'
+import { TestID } from '@/constants/TestID'
 
 import { getNoteTitle, getActiveNoteFromShortUuid } from '../../utils/helpers'
 

@@ -203,9 +203,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
   updateNote: (note) => {
     set((state) => {
       const updated = state.notes.map((n) =>
-        n.id === note.id
-          ? { ...n, text: note.text, lastUpdated: note.lastUpdated }
-          : n
+        n.id === note.id ? { ...n, text: note.text, lastUpdated: note.lastUpdated } : n
       )
       saveNotesToLocalStorage(updated)
       return { notes: updated }
@@ -213,12 +211,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
   },
 
   updateNotes: ({ notes, activeFolder, activeCategoryId, sortOrderKey }) => {
-    const activeNoteId = getFirstNoteId(
-      activeFolder,
-      notes,
-      activeCategoryId,
-      sortOrderKey
-    )
+    const activeNoteId = getFirstNoteId(activeFolder, notes, activeCategoryId, sortOrderKey)
     saveNotesToLocalStorage(notes)
     set({
       notes,
@@ -250,9 +243,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
       const isMulti = state.selectedNotesIds.includes(noteId)
       const updated = state.notes.map((note) => {
         if (isMulti) {
-          return state.selectedNotesIds.includes(note.id)
-            ? { ...note, category: categoryId }
-            : note
+          return state.selectedNotesIds.includes(note.id) ? { ...note, category: categoryId } : note
         }
         return note.id === noteId ? { ...note, category: categoryId } : note
       })
@@ -371,9 +362,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
         ? state.notes.map((note) =>
             state.selectedNotesIds.includes(note.id) ? { ...note, trash: !note.trash } : note
           )
-        : state.notes.map((note) =>
-            note.id === noteId ? { ...note, trash: !note.trash } : note
-          )
+        : state.notes.map((note) => (note.id === noteId ? { ...note, trash: !note.trash } : note))
       const newActiveId = getNewActiveNoteId(
         updated,
         noteId,

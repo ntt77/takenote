@@ -11,15 +11,10 @@ import { NotesSortKey } from '@/utils/enums'
 import { backupNotes, downloadNotes } from '@/utils/helpers'
 import { Tabs } from '@/components/Tabs/Tabs'
 import { TabPanel } from '@/components/Tabs/TabPanel'
-import { LabelText } from '@resources/LabelText'
-import { TestID } from '@resources/TestID'
+import { LabelText } from '@/constants/LabelText'
+import { TestID } from '@/constants/TestID'
 import { IconButtonUploader } from '@/components/SettingsModal/IconButtonUploader'
-import {
-  useAuthStore,
-  useCategoriesStore,
-  useNotesStore,
-  useSettingsStore,
-} from '@/store'
+import { useAuthStore, useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 export const SettingsModal: React.FC = () => {
   // ===========================================================================

@@ -19,8 +19,7 @@
 
     /* Path Aliases */
     "paths": {
-      "@/*": ["./src/*"],
-      "@resources/*": ["./src/resources/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src", "vite.config.ts", "eslint.config.js"],

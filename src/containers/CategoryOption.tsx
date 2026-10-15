@@ -2,7 +2,7 @@ import React from 'react'
 import { Draggable } from '@hello-pangea/dnd'
 import { Folder as FolderIcon, MoreHorizontal } from '@/icons'
 
-import { TestID } from '@resources/TestID'
+import { TestID } from '@/constants/TestID'
 import { CategoryItem, ReactDragEvent, ReactMouseEvent, ReactSubmitEvent } from '@/types'
 import { determineCategoryClass } from '@/utils/helpers'
 import { iconColor } from '@/utils/constants'

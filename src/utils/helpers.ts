@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import JSZip from 'jszip'
 
-import { LabelText } from '@resources/LabelText'
+import { LabelText } from '@/constants/LabelText'
 import { Folder } from '@/utils/enums'
 import { folderMap } from '@/utils/constants'
 import { NoteItem, CategoryItem } from '@/types'

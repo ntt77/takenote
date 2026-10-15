@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
 import { ArrowUp, Download, Star, Trash, X, Edit2, Clipboard } from '@/icons'
 
-import { LabelText } from '@resources/LabelText'
-import { TestID } from '@resources/TestID'
+import { LabelText } from '@/constants/LabelText'
+import { TestID } from '@/constants/TestID'
 import { ContextMenuOption } from '@/components/NoteList/ContextMenuOption'
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
 import { Folder, ContextMenuEnum } from '@/utils/enums'
