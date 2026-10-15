@@ -1,50 +1,44 @@
-import ReactDOM from 'react-dom'
-import React, { useEffect, useState, createContext } from 'react'
+import ReactDOM from 'react-dom';
+import React, { useEffect, useState, createContext } from 'react';
 
-import { SelectCategory } from '@/features/notes/components/SelectCategory'
-import { ContextMenuOptions } from '@/features/notes/ContextMenuOptions'
-import { NoteItem, CategoryItem } from '@/types'
-import { ContextMenuEnum } from '@/utils/enums'
-import { isDraftNote } from '@/utils/helpers'
-import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
+import { SelectCategory } from '@/features/notes/components/SelectCategory';
+import { ContextMenuOptions } from '@/features/notes/ContextMenuOptions';
+import { NoteItem, CategoryItem } from '@/types';
+import { ContextMenuEnum } from '@/utils/enums';
+import { isDraftNote } from '@/utils/helpers';
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
 
 export const MenuUtilitiesContext = createContext({
   setOptionsId: (_id: string) => {},
-})
+});
 interface Position {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 export interface ContextMenuProps {
-  item: NoteItem | CategoryItem
-  optionsPosition: Position
-  contextMenuRef: React.RefObject<HTMLDivElement | null> | null
-  setOptionsId: (id: string) => void
-  type: ContextMenuEnum
+  item: NoteItem | CategoryItem;
+  optionsPosition: Position;
+  contextMenuRef: React.RefObject<HTMLDivElement | null> | null;
+  setOptionsId: (id: string) => void;
+  type: ContextMenuEnum;
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({
-  item,
-  optionsPosition,
-  contextMenuRef,
-  setOptionsId,
-  type,
-}) => {
+export const ContextMenu: React.FC<ContextMenuProps> = ({ item, optionsPosition, contextMenuRef, setOptionsId, type }) => {
   // ===========================================================================
   // Stores
   // ===========================================================================
 
-  const { darkTheme } = useSettingsStore()
+  const { darkTheme } = useSettingsStore();
 
   // ===========================================================================
   // State
   // ===========================================================================
 
   const [elementDimensions, setElementDimensions] = useState<{
-    offsetHeight: number | null
-    offsetWidth: number | null
-  }>({ offsetHeight: null, offsetWidth: null })
+    offsetHeight: number | null;
+    offsetWidth: number | null;
+  }>({ offsetHeight: null, offsetWidth: null });
 
   // ===========================================================================
   // Hooks
@@ -52,10 +46,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   useEffect(() => {
     if (contextMenuRef?.current) {
-      const { offsetHeight, offsetWidth } = contextMenuRef.current
-      setElementDimensions({ offsetHeight, offsetWidth })
+      const { offsetHeight, offsetWidth } = contextMenuRef.current;
+      setElementDimensions({ offsetHeight, offsetWidth });
     }
-  }, [contextMenuRef])
+  }, [contextMenuRef]);
 
   // ===========================================================================
   // Other
@@ -63,20 +57,18 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   const contextValues = {
     setOptionsId,
-  }
+  };
 
   const getOptionsYPosition = (): number => {
     if (elementDimensions.offsetHeight || elementDimensions.offsetWidth) {
-      const MaxY = window.innerHeight
-      const optionsSize = elementDimensions.offsetHeight as number
+      const MaxY = window.innerHeight;
+      const optionsSize = elementDimensions.offsetHeight as number;
 
-      return MaxY - optionsPosition.y > optionsSize
-        ? optionsPosition.y
-        : optionsPosition.y - optionsSize
+      return MaxY - optionsPosition.y > optionsSize ? optionsPosition.y : optionsPosition.y - optionsSize;
     }
 
-    return 0
-  }
+    return 0;
+  };
 
   return ReactDOM.createPortal(
     <div className={type === ContextMenuEnum.CATEGORY || darkTheme ? 'dark' : ''}>
@@ -90,33 +82,28 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           left: optionsPosition.x + 'px',
         }}
         onClick={(event) => {
-          event.stopPropagation()
-        }}
-      >
+          event.stopPropagation();
+        }}>
         <MenuUtilitiesContext.Provider value={contextValues}>
-          {type === ContextMenuEnum.CATEGORY ? (
-            <CategoryMenu category={item as CategoryItem} />
-          ) : (
-            <NotesMenu note={item as NoteItem} setOptionsId={setOptionsId} />
-          )}
+          {type === ContextMenuEnum.CATEGORY ? <CategoryMenu category={item as CategoryItem} /> : <NotesMenu note={item as NoteItem} setOptionsId={setOptionsId} />}
         </MenuUtilitiesContext.Provider>
       </div>
     </div>,
     document.getElementById('context-menu') as HTMLElement
-  )
-}
+  );
+};
 
 interface CategoryMenuProps {
-  category: CategoryItem
+  category: CategoryItem;
 }
 
 const CategoryMenu: React.FC<CategoryMenuProps> = ({ category }) => {
-  return <ContextMenuOptions clickedItem={category} type={ContextMenuEnum.CATEGORY} />
-}
+  return <ContextMenuOptions clickedItem={category} type={ContextMenuEnum.CATEGORY} />;
+};
 
 interface NotesMenuProps {
-  note: NoteItem
-  setOptionsId: (id: string) => void
+  note: NoteItem;
+  setOptionsId: (id: string) => void;
 }
 
 const NotesMenu: React.FC<NotesMenuProps> = ({ note, setOptionsId }) => {
@@ -124,29 +111,26 @@ const NotesMenu: React.FC<NotesMenuProps> = ({ note, setOptionsId }) => {
   // Stores
   // ===========================================================================
 
-  const { categories } = useCategoriesStore()
-  const { activeCategoryId, addCategoryToNote, updateActiveNote, updateActiveCategoryId } =
-    useNotesStore()
+  const { categories } = useCategoriesStore();
+  const { activeCategoryId, addCategoryToNote, updateActiveNote, updateActiveCategoryId } = useNotesStore();
 
-  const _addCategoryToNote = (categoryId: string, noteId: string) =>
-    addCategoryToNote({ categoryId, noteId })
-  const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    updateActiveNote({ noteId, multiSelect })
-  const _updateActiveCategoryId = (categoryId: string) => updateActiveCategoryId(categoryId)
+  const _addCategoryToNote = (categoryId: string, noteId: string) => addCategoryToNote({ categoryId, noteId });
+  const _updateActiveNote = (noteId: string, multiSelect: boolean) => updateActiveNote({ noteId, multiSelect });
+  const _updateActiveCategoryId = (categoryId: string) => updateActiveCategoryId(categoryId);
 
   return !isDraftNote(note) ? (
     <>
       {!note.scratchpad && (
         <SelectCategory
           onChange={(event) => {
-            _addCategoryToNote(event.target.value, note.id)
+            _addCategoryToNote(event.target.value, note.id);
 
             if (event.target.value !== activeCategoryId) {
-              _updateActiveCategoryId(event.target.value)
-              _updateActiveNote(note.id, false)
+              _updateActiveCategoryId(event.target.value);
+              _updateActiveNote(note.id, false);
             }
 
-            setOptionsId('')
+            setOptionsId('');
           }}
           categories={categories}
           activeCategoryId={activeCategoryId}
@@ -155,5 +139,5 @@ const NotesMenu: React.FC<NotesMenuProps> = ({ note, setOptionsId }) => {
       )}
       <ContextMenuOptions type={ContextMenuEnum.NOTE} clickedItem={note} />
     </>
-  ) : null
-}
+  ) : null;
+};

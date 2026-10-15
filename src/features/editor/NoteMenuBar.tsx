@@ -1,50 +1,34 @@
-import { useEffect, useState } from 'react'
-import {
-  Eye,
-  Edit,
-  Star,
-  Trash2,
-  Download,
-  Settings,
-  Sun,
-  Moon,
-  Clipboard as ClipboardCmp,
-} from '@/icons'
+import { useEffect, useState } from 'react';
+import { Eye, Edit, Star, Trash2, Download, Settings, Sun, Moon, Clipboard as ClipboardCmp } from '@/icons';
 
-import { TestID } from '@/constants/TestID'
-import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
-import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
+import { TestID } from '@/constants/TestID';
+import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers';
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
 
 export const NoteMenuBar = () => {
   // ===========================================================================
   // Stores
   // ===========================================================================
 
-  const { notes, activeNoteId, toggleFavoriteNotes, toggleTrashNotes } = useNotesStore()
-  const { categories } = useCategoriesStore()
-  const {
-    darkTheme,
-    toggleSettingsModal,
-    togglePreviewMarkdown,
-    toggleDarkTheme,
-    updateCodeMirrorOption,
-  } = useSettingsStore()
+  const { notes, activeNoteId, toggleFavoriteNotes, toggleTrashNotes } = useNotesStore();
+  const { categories } = useCategoriesStore();
+  const { darkTheme, toggleSettingsModal, togglePreviewMarkdown, toggleDarkTheme, updateCodeMirrorOption } = useSettingsStore();
 
   // ===========================================================================
   // Other
   // ===========================================================================
 
-  const copyNoteIcon = <ClipboardCmp size={18} aria-hidden="true" focusable="false" />
-  const successfulCopyMessage = 'Note copied!'
-  const activeNote = notes.find((note) => note.id === activeNoteId)!
-  const shortNoteUuid = getShortUuid(activeNoteId)
+  const copyNoteIcon = <ClipboardCmp size={18} aria-hidden="true" focusable="false" />;
+  const successfulCopyMessage = 'Note copied!';
+  const activeNote = notes.find((note) => note.id === activeNoteId)!;
+  const shortNoteUuid = getShortUuid(activeNoteId);
 
   // ===========================================================================
   // State
   // ===========================================================================
 
-  const [uuidCopiedText, setUuidCopiedText] = useState<string>('')
-  const [isToggled, togglePreviewIcon] = useState<boolean>(false)
+  const [uuidCopiedText, setUuidCopiedText] = useState<string>('');
+  const [isToggled, togglePreviewIcon] = useState<boolean>(false);
 
   // ===========================================================================
   // Hooks
@@ -53,47 +37,39 @@ export const NoteMenuBar = () => {
   useEffect(() => {
     if (uuidCopiedText === successfulCopyMessage) {
       const timer = setTimeout(() => {
-        setUuidCopiedText('')
-      }, 3000)
+        setUuidCopiedText('');
+      }, 3000);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [uuidCopiedText])
+  }, [uuidCopiedText]);
 
   // ===========================================================================
   // Handlers
   // ===========================================================================
 
-  const downloadNotesHandler = () => downloadNotes([activeNote], categories)
-  const favoriteNoteHandler = () => toggleFavoriteNotes(activeNoteId)
-  const trashNoteHandler = () => toggleTrashNotes(activeNoteId)
-  const settingsHandler = () => toggleSettingsModal()
+  const downloadNotesHandler = () => downloadNotes([activeNote], categories);
+  const favoriteNoteHandler = () => toggleFavoriteNotes(activeNoteId);
+  const trashNoteHandler = () => toggleTrashNotes(activeNoteId);
+  const settingsHandler = () => toggleSettingsModal();
   const toggleDarkThemeHandler = () => {
-    toggleDarkTheme()
+    toggleDarkTheme();
     updateCodeMirrorOption({
       key: 'theme',
       value: darkTheme ? 'base16-light' : 'new-moon',
-    })
-  }
+    });
+  };
   const togglePreviewHandler = () => {
-    togglePreviewIcon(!isToggled)
-    togglePreviewMarkdown()
-  }
+    togglePreviewIcon(!isToggled);
+    togglePreviewMarkdown();
+  };
 
   return (
     <section className="note-menu-bar">
       {activeNote && !isDraftNote(activeNote) ? (
         <nav>
-          <button
-            className="note-menu-bar-button"
-            onClick={togglePreviewHandler}
-            data-testid={TestID.PREVIEW_MODE}
-          >
-            {isToggled ? (
-              <Edit aria-hidden="true" size={18} />
-            ) : (
-              <Eye aria-hidden="true" size={18} />
-            )}
+          <button className="note-menu-bar-button" onClick={togglePreviewHandler} data-testid={TestID.PREVIEW_MODE}>
+            {isToggled ? <Edit aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
             <span className="sr-only">{isToggled ? 'Edit note' : 'Preview note'}</span>
           </button>
           {!activeNote.scratchpad && (
@@ -115,11 +91,10 @@ export const NoteMenuBar = () => {
           <button
             className="note-menu-bar-button uuid"
             onClick={() => {
-              copyToClipboard(`{{${shortNoteUuid}}}`)
-              setUuidCopiedText(successfulCopyMessage)
+              copyToClipboard(`{{${shortNoteUuid}}}`);
+              setUuidCopiedText(successfulCopyMessage);
             }}
-            data-testid={TestID.UUID_MENU_BAR_COPY_ICON}
-          >
+            data-testid={TestID.UUID_MENU_BAR_COPY_ICON}>
             {copyNoteIcon}
             {uuidCopiedText && <span className="uuid-copied-text">{uuidCopiedText}</span>}
             <span className="sr-only">Copy note</span>
@@ -140,5 +115,5 @@ export const NoteMenuBar = () => {
         </button>
       </nav>
     </section>
-  )
-}
+  );
+};

@@ -1,6 +1,6 @@
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
-import { tags as t } from '@lezer/highlight'
-import { EditorView } from '@codemirror/view'
+import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { tags as t } from '@lezer/highlight';
+import { EditorView } from '@codemirror/view';
 
 /**
  * Custom Markdown syntax highlighting:
@@ -67,7 +67,7 @@ export const markdownHighlightStyle = HighlightStyle.define([
     textDecoration: 'underline',
     opacity: '0.8',
   },
-])
+]);
 
 /**
  * Base editor theme for CodeMirror 6 with refined typography, smooth scrolling,
@@ -95,9 +95,6 @@ export const editorBaseTheme = EditorView.theme({
     backgroundColor: 'transparent',
     color: 'var(--cm-gutter-color, #999)',
   },
-})
+});
 
-export const markdownEditorExtensions = [
-  editorBaseTheme,
-  syntaxHighlighting(markdownHighlightStyle),
-]
+export const markdownEditorExtensions = [editorBaseTheme, syntaxHighlighting(markdownHighlightStyle)];

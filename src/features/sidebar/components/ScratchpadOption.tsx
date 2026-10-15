@@ -1,28 +1,27 @@
-import React from 'react'
-import { Edit } from '@/icons'
+import React from 'react';
+import { Edit } from '@/icons';
 
-import { TestID } from '@/constants/TestID'
-import { LabelText } from '@/constants/LabelText'
-import { Folder } from '@/utils/enums'
-import { iconColor } from '@/utils/constants'
+import { TestID } from '@/constants/TestID';
+import { LabelText } from '@/constants/LabelText';
+import { Folder } from '@/utils/enums';
+import { iconColor } from '@/utils/constants';
 
 export interface ScratchpadOptionProps {
-  active: boolean
-  swapFolder: (folder: Folder) => void
+  active: boolean;
+  swapFolder: (folder: Folder) => void;
 }
 
 export const ScratchpadOption: React.FC<ScratchpadOptionProps> = ({ active, swapFolder }) => {
   return (
     <button
       onClick={() => {
-        swapFolder(Folder.SCRATCHPAD)
+        swapFolder(Folder.SCRATCHPAD);
       }}
-      className="app-sidebar-wrapper"
-    >
+      className="app-sidebar-wrapper">
       <div data-testid={TestID.SCRATCHPAD} className={`app-sidebar-link ${active ? 'active' : ''}`}>
         <Edit size={15} className="app-sidebar-icon" color={iconColor} />
         {LabelText.SCRATCHPAD}
       </div>
     </button>
-  )
-}
+  );
+};

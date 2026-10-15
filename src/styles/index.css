@@ -14,8 +14,7 @@
   --dimmer-background: rgba(0, 0, 0, 0.6);
   --error: #f2777a;
   --box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --font-mono: Menlo, Monaco, Consolas, 'Courier New', monospace;
 
   /* CodeMirror Markdown Tokens */
@@ -42,8 +41,7 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   color: #404040;
 }
 
@@ -1809,6 +1807,8 @@ kbd {
   100% {
     transform: rotate(360deg);
   }
+}
+
 .dark {
   --cm-heading-color: #ffd479;
   --cm-code-bg: rgba(255, 255, 255, 0.08);

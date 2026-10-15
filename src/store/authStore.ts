@@ -1,16 +1,16 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-import { GithubUser } from '@/types'
+import { GithubUser } from '@/types';
 
 export interface AuthStoreState {
-  loading: boolean
-  currentUser: GithubUser
-  isAuthenticated: boolean
-  error: string
+  loading: boolean;
+  currentUser: GithubUser;
+  isAuthenticated: boolean;
+  error: string;
 
   // Actions
-  login: () => void
-  logout: () => void
+  login: () => void;
+  logout: () => void;
 }
 
 export const useAuthStore = create<AuthStoreState>((set) => ({
@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
       currentUser: { name: 'User' },
       isAuthenticated: true,
       loading: false,
-    })
+    });
   },
 
   logout: () => {
@@ -32,6 +32,6 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
       currentUser: {},
       isAuthenticated: false,
       loading: false,
-    })
+    });
   },
-}))
+}));

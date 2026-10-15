@@ -1,24 +1,17 @@
-import React from 'react'
+import React from 'react';
 
-import { Select } from '@/components/ui/Select'
+import { Select } from '@/components/ui/Select';
 
 export interface OptionProps {
-  title: string
-  description: string
-  onChange: (selectedOption: any) => void
-  selectedValue: string
-  options: Array<{ value: string; label: string }>
-  testId: string
+  title: string;
+  description: string;
+  onChange: (selectedOption: any) => void;
+  selectedValue: string;
+  options: Array<{ value: string; label: string }>;
+  testId: string;
 }
 
-export const SelectOptions: React.FC<OptionProps> = ({
-  title,
-  description,
-  onChange,
-  selectedValue,
-  options,
-  testId,
-}) => {
+export const SelectOptions: React.FC<OptionProps> = ({ title, description, onChange, selectedValue, options, testId }) => {
   return (
     <div className="settings-option">
       <div>
@@ -27,5 +20,5 @@ export const SelectOptions: React.FC<OptionProps> = ({
       </div>
       <Select options={options} onChange={onChange} selectedValue={selectedValue} testId={testId} />
     </div>
-  )
-}
+  );
+};

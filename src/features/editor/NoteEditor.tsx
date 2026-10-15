@@ -1,84 +1,65 @@
-import dayjs from 'dayjs'
-import React, { useMemo, useRef, useCallback } from 'react'
-import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror'
-import { markdown } from '@codemirror/lang-markdown'
-import {
-  EditorView,
-  scrollPastEnd,
-  MatchDecorator,
-  Decoration,
-  ViewPlugin,
-  DecorationSet,
-  ViewUpdate,
-} from '@codemirror/view'
+import dayjs from 'dayjs';
+import React, { useMemo, useRef, useCallback } from 'react';
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { markdown } from '@codemirror/lang-markdown';
+import { EditorView, scrollPastEnd, MatchDecorator, Decoration, ViewPlugin, DecorationSet, ViewUpdate } from '@codemirror/view';
 
-import { getActiveNote } from '@/utils/helpers'
-import { NoteMenuBar } from '@/features/editor/NoteMenuBar'
-import { EmptyEditor } from '@/features/editor/components/EmptyEditor'
-import { PreviewEditor } from '@/features/editor/components/PreviewEditor'
-import { EditorToolbar } from '@/features/editor/components/EditorToolbar'
-import { markdownEditorExtensions } from '@/features/editor/utils/editorTheme'
-import { useNotesStore, useSettingsStore } from '@/store'
+import { getActiveNote } from '@/utils/helpers';
+import { NoteMenuBar } from '@/features/editor/NoteMenuBar';
+import { EmptyEditor } from '@/features/editor/components/EmptyEditor';
+import { PreviewEditor } from '@/features/editor/components/PreviewEditor';
+import { EditorToolbar } from '@/features/editor/components/EditorToolbar';
+import { markdownEditorExtensions } from '@/features/editor/utils/editorTheme';
+import { useNotesStore, useSettingsStore } from '@/store';
 
 const linkMatcher = new MatchDecorator({
   regexp: /\{\{[a-z0-9]{6}\}\}/g,
   decoration: () => Decoration.mark({ class: 'cm-notelink' }),
-})
+});
 
 const noteLinkPlugin = ViewPlugin.fromClass(
   class {
-    decorations: DecorationSet
+    decorations: DecorationSet;
     constructor(view: EditorView) {
-      this.decorations = linkMatcher.createDeco(view)
+      this.decorations = linkMatcher.createDeco(view);
     }
     update(update: ViewUpdate) {
-      this.decorations = linkMatcher.updateDeco(update, this.decorations)
+      this.decorations = linkMatcher.updateDeco(update, this.decorations);
     }
   },
   {
     decorations: (instance) => instance.decorations,
   }
-)
+);
 
 export const NoteEditor: React.FC = () => {
   // ===========================================================================
   // Stores
   // ===========================================================================
 
-  const { activeNoteId, loading, notes, updateNote } = useNotesStore()
-  const { codeMirrorOptions, previewMarkdown, darkTheme } = useSettingsStore()
+  const { activeNoteId, loading, notes, updateNote } = useNotesStore();
+  const { codeMirrorOptions, previewMarkdown, darkTheme } = useSettingsStore();
 
-  const activeNote = getActiveNote(notes, activeNoteId)
+  const activeNote = getActiveNote(notes, activeNoteId);
 
-  const editorRef = useRef<ReactCodeMirrorRef>(null)
-  const getView = useCallback(() => editorRef.current?.view, [])
+  const editorRef = useRef<ReactCodeMirrorRef>(null);
+  const getView = useCallback(() => editorRef.current?.view, []);
 
   const extensions = useMemo(() => {
-    const list = [
-      markdown(),
-      EditorView.lineWrapping,
-      noteLinkPlugin,
-      ...markdownEditorExtensions,
-    ]
+    const list = [markdown(), EditorView.lineWrapping, noteLinkPlugin, ...markdownEditorExtensions];
     if (codeMirrorOptions.scrollPastEnd) {
-      list.push(scrollPastEnd())
+      list.push(scrollPastEnd());
     }
-    return list
-  }, [codeMirrorOptions.scrollPastEnd])
+    return list;
+  }, [codeMirrorOptions.scrollPastEnd]);
 
   const renderEditor = () => {
     if (loading) {
-      return <div className="empty-editor v-center">Loading...</div>
+      return <div className="empty-editor v-center">Loading...</div>;
     } else if (!activeNote) {
-      return <EmptyEditor />
+      return <EmptyEditor />;
     } else if (previewMarkdown) {
-      return (
-        <PreviewEditor
-          directionText={codeMirrorOptions.direction}
-          noteText={activeNote.text}
-          notes={notes}
-        />
-      )
+      return <PreviewEditor directionText={codeMirrorOptions.direction} noteText={activeNote.text} notes={notes} />;
     }
 
     return (
@@ -104,11 +85,11 @@ export const NoteEditor: React.FC = () => {
             text: value,
             created: activeNote.created,
             lastUpdated: dayjs().format(),
-          })
+          });
         }}
       />
-    )
-  }
+    );
+  };
 
   return (
     <main className="note-editor">
@@ -116,5 +97,5 @@ export const NoteEditor: React.FC = () => {
       <NoteMenuBar />
       {renderEditor()}
     </main>
-  )
-}
+  );
+};

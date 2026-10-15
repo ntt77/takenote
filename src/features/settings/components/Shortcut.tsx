@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 export interface ShortcutProps {
-  action: string
-  letter: string
+  action: string;
+  letter: string;
 }
 
 export const Shortcut: React.FC<ShortcutProps> = ({ action, letter }) => {
@@ -13,5 +13,5 @@ export const Shortcut: React.FC<ShortcutProps> = ({ action, letter }) => {
         <kbd>CTRL</kbd> + <kbd>ALT</kbd> + <kbd>{letter}</kbd>
       </div>
     </div>
-  )
-}
+  );
+};

@@ -21,7 +21,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rimraf dist .eslintcache",
-    "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,css}\"",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\"",
     "lint": "eslint . --cache"
   },
   "dependencies": {

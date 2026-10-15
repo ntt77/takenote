@@ -1,37 +1,35 @@
-import dayjs from 'dayjs'
-import JSZip from 'jszip'
+import dayjs from 'dayjs';
+import JSZip from 'jszip';
 
-import { LabelText } from '@/constants/LabelText'
-import { Folder } from '@/utils/enums'
-import { folderMap } from '@/utils/constants'
-import { NoteItem, CategoryItem } from '@/types'
+import { LabelText } from '@/constants/LabelText';
+import { Folder } from '@/utils/enums';
+import { folderMap } from '@/utils/constants';
+import { NoteItem, CategoryItem } from '@/types';
 
-export const getActiveNote = (notes: NoteItem[], activeNoteId: string) =>
-  notes.find((note) => note.id === activeNoteId)
+export const getActiveNote = (notes: NoteItem[], activeNoteId: string) => notes.find((note) => note.id === activeNoteId);
 
 export const getShortUuid = (uuid: string) => {
-  return uuid.slice(0, 6)
-}
+  return uuid.slice(0, 6);
+};
 
 export const getActiveNoteFromShortUuid = (notes: NoteItem[], shortUuid: string) => {
-  const uuidWithoutHash = shortUuid.replace('{{', '').replace('}}', '')
+  const uuidWithoutHash = shortUuid.replace('{{', '').replace('}}', '');
 
-  return notes.find((note) => note.id.startsWith(uuidWithoutHash))
-}
+  return notes.find((note) => note.id.startsWith(uuidWithoutHash));
+};
 
-export const getActiveCategory = (categories: CategoryItem[], activeCategoryId: string) =>
-  categories.find(({ id }) => id === activeCategoryId)
+export const getActiveCategory = (categories: CategoryItem[], activeCategoryId: string) => categories.find(({ id }) => id === activeCategoryId);
 
 export const getNoteTitle = (text: string): string => {
   // Remove whitespace from both ends
   // Get the first n characters
   // Remove # from the title in the case of using markdown headers in your title
-  const noteText = text.trim().match(/[^#]{1,45}/)
+  const noteText = text.trim().match(/[^#]{1,45}/);
 
   // Get the first line of text after any newlines
   // In the future, this should break on a full word
-  return noteText ? noteText[0].trim().split(/\r?\n/)[0] : LabelText.NEW_NOTE
-}
+  return noteText ? noteText[0].trim().split(/\r?\n/)[0] : LabelText.NEW_NOTE;
+};
 
 export const noteWithFrontmatter = (note: NoteItem, category?: CategoryItem): string =>
   `---
@@ -41,12 +39,12 @@ lastUpdated: ${note.lastUpdated}
 category: ${category?.name ?? ''}
 ---
 
-${note.text}`
+${note.text}`;
 
 // Downloads a single note as a markdown file or a group of notes as a zip file.
 export const downloadNotes = (notes: NoteItem[], categories: CategoryItem[]): void => {
   if (notes.length === 1) {
-    const pom = document.createElement('a')
+    const pom = document.createElement('a');
 
     pom.setAttribute(
       'href',
@@ -56,18 +54,18 @@ export const downloadNotes = (notes: NoteItem[], categories: CategoryItem[]): vo
           categories.find((category: CategoryItem) => category.id === notes[0].category)
         )
       )}`
-    )
-    pom.setAttribute('download', `${getNoteTitle(notes[0].text)}.md`)
+    );
+    pom.setAttribute('download', `${getNoteTitle(notes[0].text)}.md`);
 
     if (document.createEvent) {
-      const event = document.createEvent('MouseEvents')
-      event.initEvent('click', true, true)
-      pom.dispatchEvent(event)
+      const event = document.createEvent('MouseEvents');
+      event.initEvent('click', true, true);
+      pom.dispatchEvent(event);
     } else {
-      pom.click()
+      pom.click();
     }
   } else {
-    const zip = new JSZip()
+    const zip = new JSZip();
     notes.forEach((note) =>
       zip.file(
         `${getNoteTitle(note.text)} (${note.id.substring(0, 6)}).md`,
@@ -76,42 +74,42 @@ export const downloadNotes = (notes: NoteItem[], categories: CategoryItem[]): vo
           categories.find((category: CategoryItem) => category.id === note.category)
         )
       )
-    )
+    );
 
     zip.generateAsync({ type: 'blob' }).then(
       (content) => {
-        const downloadUrl = window.URL.createObjectURL(content)
-        const a = document.createElement('a')
-        a.href = downloadUrl
-        a.download = 'notes.zip'
-        document.body.appendChild(a)
-        a.click()
-        URL.revokeObjectURL(downloadUrl)
+        const downloadUrl = window.URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = 'notes.zip';
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(downloadUrl);
       },
       (_err) => {
         // TODO: error generating zip file.
         // Generate a popup?
       }
-    )
+    );
   }
-}
+};
 
 export const backupNotes = (notes: NoteItem[], categories: CategoryItem[]) => {
-  const pom = document.createElement('a')
+  const pom = document.createElement('a');
 
-  const json = JSON.stringify({ notes, categories })
-  const blob = new Blob([json], { type: 'application/json' })
+  const json = JSON.stringify({ notes, categories });
+  const blob = new Blob([json], { type: 'application/json' });
 
-  const downloadUrl = window.URL.createObjectURL(blob)
-  pom.href = downloadUrl
-  pom.download = `takenote-backup-${dayjs().format('YYYY-MM-DD')}.json`
-  document.body.appendChild(pom)
+  const downloadUrl = window.URL.createObjectURL(blob);
+  pom.href = downloadUrl;
+  pom.download = `takenote-backup-${dayjs().format('YYYY-MM-DD')}.json`;
+  document.body.appendChild(pom);
 
   if (!(window as any).Cypress) {
-    pom.click()
-    URL.revokeObjectURL(downloadUrl)
+    pom.click();
+    URL.revokeObjectURL(downloadUrl);
   }
-}
+};
 
 const newNote = (categoryId?: string, folder?: Folder): NoteItem => ({
   id: crypto.randomUUID(),
@@ -120,7 +118,7 @@ const newNote = (categoryId?: string, folder?: Folder): NoteItem => ({
   lastUpdated: dayjs().format(),
   category: categoryId,
   favorite: folder === Folder.FAVORITES,
-})
+});
 
 export const newNoteHandlerHelper = (
   activeFolder: Folder,
@@ -134,106 +132,91 @@ export const newNoteHandlerHelper = (
   updateSelectedNotes: (noteId: string, multiSelect: boolean) => void
 ) => {
   if ([Folder.TRASH, Folder.SCRATCHPAD].indexOf(activeFolder) !== -1) {
-    swapFolder(Folder.ALL)
+    swapFolder(Folder.ALL);
   }
 
   if (previewMarkdown) {
-    togglePreviewMarkdown()
+    togglePreviewMarkdown();
   }
 
   if ((activeNote && activeNote.text !== '') || !activeNote) {
-    const note = newNote(
-      activeCategoryId,
-      activeFolder === Folder.TRASH ? Folder.ALL : activeFolder
-    )
-    addNote(note)
-    updateSelectedNotes(note.id, false)
-    updateActiveNote(note.id, false)
+    const note = newNote(activeCategoryId, activeFolder === Folder.TRASH ? Folder.ALL : activeFolder);
+    addNote(note);
+    updateSelectedNotes(note.id, false);
+    updateActiveNote(note.id, false);
   }
-}
+};
 
 export const shouldOpenContextMenu = (clicked: Element) => {
-  if (!clicked.parentElement) return
+  if (!clicked.parentElement) return;
 
-  const elementContainsClass = (className: string) => clicked.classList.contains(className)
+  const elementContainsClass = (className: string) => clicked.classList.contains(className);
 
-  const parentContainsClass = (className: string) =>
-    clicked.parentElement!.classList.contains(className)
+  const parentContainsClass = (className: string) => clicked.parentElement!.classList.contains(className);
 
   return (
     (clicked instanceof Element &&
       // If the element is explicitly a context menu action
       elementContainsClass('context-menu-action')) ||
     // If the element is an item of the context menu
-    (!elementContainsClass('nav-item') &&
-      !elementContainsClass('options-context-menu') &&
-      !elementContainsClass('nav-item-icon') &&
-      !parentContainsClass('nav-item-icon')) ||
+    (!elementContainsClass('nav-item') && !elementContainsClass('options-context-menu') && !elementContainsClass('nav-item-icon') && !parentContainsClass('nav-item-icon')) ||
     // Or if it's a sub-element of the context menu
     (clicked.tagName === 'circle' && parentContainsClass('context-menu-action'))
-  )
-}
+  );
+};
 
 export const getWebsiteTitle = (activeFolder: Folder, activeCategory?: CategoryItem) => {
   // Show category name if category is active
   if (activeFolder === Folder.CATEGORY && activeCategory) {
-    return `${activeCategory.name} | TakeNote`
+    return `${activeCategory.name} | TakeNote`;
   } else {
     // Show main folder name otherwise
-    return `${folderMap[activeFolder]} | TakeNote`
+    return `${folderMap[activeFolder]} | TakeNote`;
   }
-}
+};
 
-export const determineAppClass = (
-  darkTheme: boolean,
-  _sidebarVisible: boolean,
-  _activeFolder: Folder
-) => {
-  let className = 'app'
+export const determineAppClass = (darkTheme: boolean, _sidebarVisible: boolean, _activeFolder: Folder) => {
+  let className = 'app';
 
-  if (darkTheme) className += ' dark'
+  if (darkTheme) className += ' dark';
 
-  return className
-}
+  return className;
+};
 
-export const determineCategoryClass = (
-  category: CategoryItem,
-  isDragging: boolean,
-  activeCategoryId: string
-) => {
+export const determineCategoryClass = (category: CategoryItem, isDragging: boolean, activeCategoryId: string) => {
   if (category.draggedOver) {
-    return 'category-list-each dragged-over'
+    return 'category-list-each dragged-over';
   } else if (category.id === activeCategoryId) {
-    return 'category-list-each active'
+    return 'category-list-each active';
   } else if (isDragging) {
-    return 'category-list-each dragging'
+    return 'category-list-each dragging';
   } else {
-    return 'category-list-each'
+    return 'category-list-each';
   }
-}
+};
 
 export const debounceEvent = <T extends (...args: any[]) => any>(cb: T, wait = 20) => {
-  let h = 0
+  let h = 0;
   const callable = (...args: any[]) => {
-    clearTimeout(h)
-    h = window.setTimeout(() => cb(...args), wait)
-  }
+    clearTimeout(h);
+    h = window.setTimeout(() => cb(...args), wait);
+  };
 
-  return callable as unknown as T
-}
+  return callable as unknown as T;
+};
 
 export const isDraftNote = (note: NoteItem) => {
-  return !note.scratchpad && note.text === ''
-}
+  return !note.scratchpad && note.text === '';
+};
 
 export const getDayJsLocale = (languagetoken: string): string => {
   if (languagetoken.includes('-')) {
-    return languagetoken.substring(0, languagetoken.lastIndexOf('-')).toLowerCase()
+    return languagetoken.substring(0, languagetoken.lastIndexOf('-')).toLowerCase();
   }
 
-  return (languagetoken || 'en').toLowerCase()
-}
+  return (languagetoken || 'en').toLowerCase();
+};
 
 export const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-}
+  navigator.clipboard.writeText(text);
+};

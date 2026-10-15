@@ -1,12 +1,12 @@
-import { visit } from 'unist-util-visit'
+import { visit } from 'unist-util-visit';
 
 // This regexp will match any string starting with a # followed by 6 alphanumeric chars
 // #k5b4m3, #j4n7k3, etc (substring of a note's UUID)
-const noteUuidRegexp = /\{\{[a-z0-9]{6}\}\}/
+const noteUuidRegexp = /\{\{[a-z0-9]{6}\}\}/;
 
 const extractText = (string: string, start: number, end: number) => {
-  const startLine = string.slice(0, start).split('\n')
-  const endLine = string.slice(0, end).split('\n')
+  const startLine = string.slice(0, start).split('\n');
+  const endLine = string.slice(0, end).split('\n');
 
   return {
     type: 'text',
@@ -21,22 +21,22 @@ const extractText = (string: string, start: number, end: number) => {
         column: endLine[endLine.length - 1].length + 1,
       },
     },
-  }
-}
+  };
+};
 
 export const uuidPlugin = () => {
   function transformer(tree: any) {
     visit(tree, 'text', (node: any, position: any, parent: any) => {
-      const definition = []
-      let lastIndex = 0
-      let match
+      const definition = [];
+      let lastIndex = 0;
+      let match;
 
       if ((match = noteUuidRegexp.exec(node.value)) !== null) {
-        const value = match[0]
-        const type = 'uuid'
+        const value = match[0];
+        const type = 'uuid';
 
         if (match.index !== lastIndex) {
-          definition.push(extractText(node.value, lastIndex, match.index))
+          definition.push(extractText(node.value, lastIndex, match.index));
         }
 
         definition.push({
@@ -48,20 +48,20 @@ export const uuidPlugin = () => {
               value,
             },
           },
-        })
+        });
 
-        lastIndex = match.index + value.length
+        lastIndex = match.index + value.length;
       }
 
       if (lastIndex !== node.value.length) {
-        const text = extractText(node.value, lastIndex, node.value.length)
-        definition.push(text)
+        const text = extractText(node.value, lastIndex, node.value.length);
+        definition.push(text);
       }
 
-      if (!parent || typeof position !== 'number') return
-      parent.children.splice(position, 1, ...definition)
-    })
+      if (!parent || typeof position !== 'number') return;
+      parent.children.splice(position, 1, ...definition);
+    });
   }
 
-  return transformer
-}
+  return transformer;
+};

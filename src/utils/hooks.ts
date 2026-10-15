@@ -1,24 +1,24 @@
-import mousetrap from 'mousetrap'
-import { useEffect, useRef } from 'react'
+import mousetrap from 'mousetrap';
+import { useEffect, useRef } from 'react';
 
-import 'mousetrap-global-bind'
+import 'mousetrap-global-bind';
 
-const noop = () => {}
+const noop = () => {};
 
 export function useKey(key: string, action: () => void) {
-  const actionRef = useRef(noop)
+  const actionRef = useRef(noop);
   useEffect(() => {
-    actionRef.current = action
-  })
+    actionRef.current = action;
+  });
 
   useEffect(() => {
     mousetrap.bindGlobal(key, (event: Event) => {
-      event.preventDefault()
+      event.preventDefault();
       if (actionRef.current) {
-        actionRef.current()
+        actionRef.current();
       }
-    })
+    });
 
-    return () => mousetrap.unbind(key)
-  }, [key])
+    return () => mousetrap.unbind(key);
+  }, [key]);
 }

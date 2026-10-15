@@ -1,13 +1,13 @@
-import React from 'react'
+import React from 'react';
 
-import { Switch } from '@/components/ui/Switch'
+import { Switch } from '@/components/ui/Switch';
 
 export interface OptionProps {
-  title: string
-  description: string
-  toggle: () => void
-  checked: boolean
-  testId: string
+  title: string;
+  description: string;
+  toggle: () => void;
+  checked: boolean;
+  testId: string;
 }
 
 export const Option: React.FC<OptionProps> = ({ title, description, toggle, checked, testId }) => {
@@ -19,5 +19,5 @@ export const Option: React.FC<OptionProps> = ({ title, description, toggle, chec
       </div>
       <Switch toggle={toggle} checked={checked} testId={testId} />
     </div>
-  )
-}
+  );
+};

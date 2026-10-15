@@ -1,4 +1,4 @@
-import { Folder, NotesSortKey, DirectionText } from '@/utils/enums'
+import { Folder, NotesSortKey, DirectionText } from '@/utils/enums';
 
 export const folderMap: Record<Folder, string> = {
   [Folder.ALL]: 'All Notes',
@@ -6,9 +6,9 @@ export const folderMap: Record<Folder, string> = {
   [Folder.SCRATCHPAD]: 'Scratchpad',
   [Folder.TRASH]: 'Trash',
   [Folder.CATEGORY]: 'Category',
-}
+};
 
-export const iconColor = 'rgba(255, 255, 255, 0.25)'
+export const iconColor = 'rgba(255, 255, 255, 0.25)';
 
 export const shortcutMap = [
   { action: 'Create a new note', key: 'N' },
@@ -20,15 +20,15 @@ export const shortcutMap = [
   { action: 'Toggle theme', key: 'K' },
   { action: 'Search notes', key: 'F' },
   { action: 'Prettify a note', key: 'I' },
-]
+];
 
 export const notesSortOptions = [
   { value: NotesSortKey.TITLE, label: 'Title' },
   { value: NotesSortKey.CREATED_DATE, label: 'Date Created' },
   { value: NotesSortKey.LAST_UPDATED, label: 'Last Updated' },
-]
+];
 
 export const directionTextOptions = [
   { value: DirectionText.LEFT_TO_RIGHT, label: 'Left to right' },
   { value: DirectionText.RIGHT_TO_LEFT, label: 'Right to left' },
-]
+];

@@ -1,40 +1,31 @@
-import React, { KeyboardEventHandler, MouseEventHandler, useContext } from 'react'
-import { Icon } from '@/icons'
+import React, { KeyboardEventHandler, MouseEventHandler, useContext } from 'react';
+import { Icon } from '@/icons';
 
-import { MenuUtilitiesContext } from '@/features/notes/ContextMenu'
+import { MenuUtilitiesContext } from '@/features/notes/ContextMenu';
 
 export interface ContextMenuOptionProps {
-  dataTestID: string
-  handler: MouseEventHandler & KeyboardEventHandler
-  icon: Icon
-  text: string
-  optionType?: string
+  dataTestID: string;
+  handler: MouseEventHandler & KeyboardEventHandler;
+  icon: Icon;
+  text: string;
+  optionType?: string;
 }
 
-export const ContextMenuOption: React.FC<ContextMenuOptionProps> = ({
-  dataTestID,
-  handler,
-  optionType,
-  icon: IconCmp,
-  text,
-  ...rest
-}) => {
+export const ContextMenuOption: React.FC<ContextMenuOptionProps> = ({ dataTestID, handler, optionType, icon: IconCmp, text, ...rest }) => {
   // ===========================================================================
   // Context
   // ===========================================================================
 
-  const { setOptionsId } = useContext(MenuUtilitiesContext)
+  const { setOptionsId } = useContext(MenuUtilitiesContext);
 
   // ===========================================================================
   // Handlers
   // ===========================================================================
 
-  const optionHandler: MouseEventHandler & KeyboardEventHandler = (
-    event: React.MouseEvent<Element, MouseEvent> & React.KeyboardEvent<Element>
-  ) => {
-    handler(event)
-    setOptionsId('')
-  }
+  const optionHandler: MouseEventHandler & KeyboardEventHandler = (event: React.MouseEvent<Element, MouseEvent> & React.KeyboardEvent<Element>) => {
+    handler(event);
+    setOptionsId('');
+  };
 
   return (
     <div
@@ -44,10 +35,9 @@ export const ContextMenuOption: React.FC<ContextMenuOptionProps> = ({
       onClick={optionHandler}
       onKeyPress={optionHandler}
       tabIndex={0}
-      {...rest}
-    >
+      {...rest}>
       <IconCmp className="nav-item-icon" size={18} />
       {text}
     </div>
-  )
-}
+  );
+};

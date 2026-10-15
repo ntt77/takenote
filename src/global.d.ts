@@ -1,18 +1,18 @@
 /// <reference types="vite/client" />
 
 declare module '*.png' {
-  const value: any
-  export default value
+  const value: any;
+  export default value;
 }
 
 declare module '*.svg' {
-  const value: any
-  export default value
+  const value: any;
+  export default value;
 }
 
 declare module '*.md' {
-  const content: string
-  export = content
+  const content: string;
+  export = content;
 }
 
-declare module 'mousetrap'
+declare module 'mousetrap';

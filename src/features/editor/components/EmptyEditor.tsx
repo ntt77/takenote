@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 export const EmptyEditor: React.FC = () => {
   return (
@@ -12,5 +12,5 @@ export const EmptyEditor: React.FC = () => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+};

@@ -1,25 +1,18 @@
-import React from 'react'
+import React from 'react';
 
-import { TestID } from '@/constants/TestID'
-import { ReactSubmitEvent } from '@/types'
+import { TestID } from '@/constants/TestID';
+import { ReactSubmitEvent } from '@/types';
 
 export interface AddCategoryFormProps {
-  dataTestID: string
-  submitHandler: (event: ReactSubmitEvent) => void
-  changeHandler: (editingCategoryId: string, value: string) => void
-  resetHandler: () => void
-  editingCategoryId: string
-  tempCategoryName: string
+  dataTestID: string;
+  submitHandler: (event: ReactSubmitEvent) => void;
+  changeHandler: (editingCategoryId: string, value: string) => void;
+  resetHandler: () => void;
+  editingCategoryId: string;
+  tempCategoryName: string;
 }
 
-export const AddCategoryForm: React.FC<AddCategoryFormProps> = ({
-  dataTestID,
-  submitHandler,
-  changeHandler,
-  resetHandler,
-  editingCategoryId,
-  tempCategoryName,
-}) => {
+export const AddCategoryForm: React.FC<AddCategoryFormProps> = ({ dataTestID, submitHandler, changeHandler, resetHandler, editingCategoryId, tempCategoryName }) => {
   return (
     <form data-testid={dataTestID} className="category-form" onSubmit={submitHandler}>
       <input
@@ -30,16 +23,16 @@ export const AddCategoryForm: React.FC<AddCategoryFormProps> = ({
         maxLength={20}
         placeholder="New category..."
         onChange={(event) => {
-          changeHandler(editingCategoryId, event.target.value)
+          changeHandler(editingCategoryId, event.target.value);
         }}
         onBlur={(event) => {
           if (!tempCategoryName || tempCategoryName.trim() === '') {
-            resetHandler()
+            resetHandler();
           } else {
-            submitHandler(event)
+            submitHandler(event);
           }
         }}
       />
     </form>
-  )
-}
+  );
+};

@@ -1,6 +1,6 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-import { NotesSortKey, DirectionText } from '@/utils/enums'
+import { NotesSortKey, DirectionText } from '@/utils/enums';
 
 const defaultSettings = {
   previewMarkdown: false,
@@ -19,13 +19,13 @@ const defaultSettings = {
     direction: DirectionText.LEFT_TO_RIGHT,
     scrollPastEnd: false,
   },
-}
+};
 
 const loadInitialSettings = () => {
   try {
-    const raw = localStorage.getItem('settings')
+    const raw = localStorage.getItem('settings');
     if (raw) {
-      const parsed = JSON.parse(raw)
+      const parsed = JSON.parse(raw);
       return {
         ...defaultSettings,
         ...parsed,
@@ -33,20 +33,20 @@ const loadInitialSettings = () => {
           ...defaultSettings.codeMirrorOptions,
           ...(parsed.codeMirrorOptions || {}),
         },
-      }
+      };
     }
   } catch {
     // Ignore error
   }
-  return defaultSettings
-}
+  return defaultSettings;
+};
 
 const saveSettingsToLocalStorage = (settings: {
-  previewMarkdown: boolean
-  darkTheme: boolean
-  sidebarVisible: boolean
-  notesSortKey: NotesSortKey
-  codeMirrorOptions: { [key: string]: any }
+  previewMarkdown: boolean;
+  darkTheme: boolean;
+  sidebarVisible: boolean;
+  notesSortKey: NotesSortKey;
+  codeMirrorOptions: { [key: string]: any };
 }) => {
   try {
     localStorage.setItem(
@@ -58,31 +58,31 @@ const saveSettingsToLocalStorage = (settings: {
         notesSortKey: settings.notesSortKey,
         codeMirrorOptions: settings.codeMirrorOptions,
       })
-    )
+    );
   } catch {
     // Ignore storage errors
   }
-}
+};
 
 export interface SettingsStoreState {
-  isOpen: boolean
-  previewMarkdown: boolean
-  loading: boolean
-  darkTheme: boolean
-  sidebarVisible: boolean
-  notesSortKey: NotesSortKey
-  codeMirrorOptions: { [key: string]: any }
+  isOpen: boolean;
+  previewMarkdown: boolean;
+  loading: boolean;
+  darkTheme: boolean;
+  sidebarVisible: boolean;
+  notesSortKey: NotesSortKey;
+  codeMirrorOptions: { [key: string]: any };
 
   // Actions
-  toggleSettingsModal: () => void
-  updateCodeMirrorOption: (payload: { key: string; value: any }) => void
-  togglePreviewMarkdown: () => void
-  toggleDarkTheme: () => void
-  updateNotesSortStrategy: (sortBy: NotesSortKey) => void
-  loadSettings: () => void
+  toggleSettingsModal: () => void;
+  updateCodeMirrorOption: (payload: { key: string; value: any }) => void;
+  togglePreviewMarkdown: () => void;
+  toggleDarkTheme: () => void;
+  updateNotesSortStrategy: (sortBy: NotesSortKey) => void;
+  loadSettings: () => void;
 }
 
-const initial = loadInitialSettings()
+const initial = loadInitialSettings();
 
 export const useSettingsStore = create<SettingsStoreState>((set) => ({
   isOpen: false,
@@ -94,40 +94,40 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
   codeMirrorOptions: initial.codeMirrorOptions,
 
   toggleSettingsModal: () => {
-    set((state) => ({ isOpen: !state.isOpen }))
+    set((state) => ({ isOpen: !state.isOpen }));
   },
 
   updateCodeMirrorOption: ({ key, value }) => {
     set((state) => {
-      const updatedOptions = { ...state.codeMirrorOptions, [key]: value }
+      const updatedOptions = { ...state.codeMirrorOptions, [key]: value };
       saveSettingsToLocalStorage({
         ...state,
         codeMirrorOptions: updatedOptions,
-      })
-      return { codeMirrorOptions: updatedOptions }
-    })
+      });
+      return { codeMirrorOptions: updatedOptions };
+    });
   },
 
   togglePreviewMarkdown: () => {
     set((state) => {
-      const next = !state.previewMarkdown
+      const next = !state.previewMarkdown;
       saveSettingsToLocalStorage({
         ...state,
         previewMarkdown: next,
-      })
-      return { previewMarkdown: next }
-    })
+      });
+      return { previewMarkdown: next };
+    });
   },
 
   toggleDarkTheme: () => {
     set((state) => {
-      const next = !state.darkTheme
+      const next = !state.darkTheme;
       saveSettingsToLocalStorage({
         ...state,
         darkTheme: next,
-      })
-      return { darkTheme: next }
-    })
+      });
+      return { darkTheme: next };
+    });
   },
 
   updateNotesSortStrategy: (sortBy) => {
@@ -135,13 +135,13 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
       saveSettingsToLocalStorage({
         ...state,
         notesSortKey: sortBy,
-      })
-      return { notesSortKey: sortBy }
-    })
+      });
+      return { notesSortKey: sortBy };
+    });
   },
 
   loadSettings: () => {
-    const loaded = loadInitialSettings()
+    const loaded = loadInitialSettings();
     set({
       previewMarkdown: loaded.previewMarkdown,
       darkTheme: loaded.darkTheme,
@@ -149,6 +149,6 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
       notesSortKey: loaded.notesSortKey,
       codeMirrorOptions: loaded.codeMirrorOptions,
       loading: false,
-    })
+    });
   },
-}))
+}));
