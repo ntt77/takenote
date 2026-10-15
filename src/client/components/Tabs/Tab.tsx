@@ -1,5 +1,5 @@
 import React from 'react'
-import { Icon } from 'react-feather'
+import { Icon } from '@/icons'
 
 export interface TabProps {
   label: string

@@ -1,9 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Route, Switch, Redirect } from 'react-router-dom'
-import { Helmet, HelmetProvider } from 'react-helmet-async'
 
-import { LandingPage } from '@/components/LandingPage'
 import { TakeNoteApp } from '@/containers/TakeNoteApp'
 import { getAuth } from '@/selectors'
 import { login } from '@/slices/auth'
@@ -21,15 +18,9 @@ export const App: React.FC = () => {
 
   const dispatch = useDispatch()
 
-  const _login = () => dispatch(login())
-
-  // ===========================================================================
-  // Hooks
-  // ===========================================================================
-
   useEffect(() => {
-    _login()
-  }, [])
+    dispatch(login())
+  }, [dispatch])
 
   if (loading) {
     return (
@@ -44,18 +35,12 @@ export const App: React.FC = () => {
   }
 
   return (
-    <HelmetProvider>
-      <Helmet>
-        <meta charSet="utf-8" />
-        <title>TakeNote</title>
-        <link rel="canonical" href="https://takenote.dev" />
-      </Helmet>
+    <>
+      <meta charSet="utf-8" />
+      <title>TakeNote</title>
+      <link rel="canonical" href="https://takenote.dev" />
 
-      <Switch>
-        <Route exact path="/" component={LandingPage} />
-        <Route path="/app" component={TakeNoteApp} />
-        <Redirect to="/" />
-      </Switch>
-    </HelmetProvider>
+      <TakeNoteApp />
+    </>
   )
 }

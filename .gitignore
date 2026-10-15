@@ -12,3 +12,5 @@ npm-debug.log*
 **/*/videos
 tests/e2e/videos
 package-lock.json
+.eslintcache
+package-lock.json

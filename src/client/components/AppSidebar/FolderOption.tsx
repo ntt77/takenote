@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Book, Star, Trash2 } from 'react-feather'
+import { Book, Star, Trash2 } from '@/icons'
 
 import { Folder } from '@/utils/enums'
 import { iconColor } from '@/utils/constants'

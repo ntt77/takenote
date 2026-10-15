@@ -1,5 +1,5 @@
 import React, { KeyboardEventHandler, MouseEventHandler, useContext } from 'react'
-import { Icon } from 'react-feather'
+import { Icon } from '@/icons'
 
 import { MenuUtilitiesContext } from '@/containers/ContextMenu'
 

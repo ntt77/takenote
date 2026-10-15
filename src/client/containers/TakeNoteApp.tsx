@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Helmet, HelmetProvider } from 'react-helmet-async'
-import { DragDropContext, DropResult } from 'react-beautiful-dnd'
+import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import SplitPane from 'react-split-pane'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -44,9 +43,6 @@ export const TakeNoteApp: React.FC = () => {
 
   const dispatch = useDispatch()
 
-  const _loadNotes = () => dispatch(loadNotes())
-  const _loadCategories = () => dispatch(loadCategories())
-  const _loadSettings = () => dispatch(loadSettings())
   const _swapCategories = (categoryId: number, destinationId: number) =>
     dispatch(swapCategories({ categoryId, destinationId }))
 
@@ -71,10 +67,10 @@ export const TakeNoteApp: React.FC = () => {
   // ===========================================================================
 
   useEffect(() => {
-    _loadNotes()
-    _loadCategories()
-    _loadSettings()
-  }, [])
+    dispatch(loadNotes())
+    dispatch(loadCategories())
+    dispatch(loadSettings())
+  }, [dispatch])
 
   // Auto-save notes to localStorage
   useEffect(() => {
@@ -91,12 +87,10 @@ export const TakeNoteApp: React.FC = () => {
   }, [categories, categoriesLoading])
 
   return (
-    <HelmetProvider>
-      <Helmet>
-        <meta charSet="utf-8" />
-        <title>{getWebsiteTitle(activeFolder, activeCategory)}</title>
-        <link rel="canonical" href="https://takenote.dev" />
-      </Helmet>
+    <>
+      <meta charSet="utf-8" />
+      <title>{getWebsiteTitle(activeFolder, activeCategory)}</title>
+      <link rel="canonical" href="https://takenote.dev" />
 
       <TempStateProvider>
         <div className={determineAppClass(darkTheme, sidebarVisible, activeFolder)}>
@@ -113,6 +107,6 @@ export const TakeNoteApp: React.FC = () => {
           <SettingsModal />
         </div>
       </TempStateProvider>
-    </HelmetProvider>
+    </>
   )
 }

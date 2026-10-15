@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Draggable } from 'react-beautiful-dnd'
-import { Folder as FolderIcon, MoreHorizontal } from 'react-feather'
+import { Draggable } from '@hello-pangea/dnd'
+import { Folder as FolderIcon, MoreHorizontal } from '@/icons'
 
 import { TestID } from '@resources/TestID'
 import { CategoryItem, ReactDragEvent, ReactMouseEvent, ReactSubmitEvent } from '@/types'
@@ -22,7 +22,7 @@ import { ContextMenu } from '@/containers/ContextMenu'
 interface CategoryOptionProps {
   category: CategoryItem
   index: number
-  contextMenuRef: React.RefObject<HTMLDivElement>
+  contextMenuRef: React.RefObject<HTMLDivElement | null>
   handleCategoryMenuClick: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent> | ReactMouseEvent,
     categoryId?: string

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { ArrowUp, Download, Star, Trash, X, Edit2, Clipboard } from 'react-feather'
+import { ArrowUp, Download, Star, Trash, X, Edit2, Clipboard } from '@/icons'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { LabelText } from '@resources/LabelText'
@@ -18,7 +18,7 @@ import {
 import { getCategories, getNotes } from '@/selectors'
 import { Folder, ContextMenuEnum } from '@/utils/enums'
 import { CategoryItem, NoteItem } from '@/types'
-import category, { setCategoryEdit, deleteCategory } from '@/slices/category'
+import { setCategoryEdit, deleteCategory } from '@/slices/category'
 import { MenuUtilitiesContext } from '@/containers/ContextMenu'
 
 export interface ContextMenuOptionsProps {

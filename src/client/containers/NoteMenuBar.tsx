@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Eye,
@@ -10,7 +10,7 @@ import {
   Sun,
   Moon,
   Clipboard as ClipboardCmp,
-} from 'react-feather'
+} from '@/icons'
 
 import { TestID } from '@resources/TestID'
 import {

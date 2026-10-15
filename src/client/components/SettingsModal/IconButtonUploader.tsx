@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useRef } from 'react'
-import { Icon } from 'react-feather'
+import { Icon } from '@/icons'
 
 import { iconColor } from '@/utils/constants'
 

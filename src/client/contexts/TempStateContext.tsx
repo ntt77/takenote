@@ -7,7 +7,7 @@ interface TempStateContextInterface {
 
 const initialContextValue = {
   addingTempCategory: false,
-  setAddingTempCategory: (adding: boolean) => undefined,
+  setAddingTempCategory: (_adding: boolean) => undefined,
 }
 
 const TempStateContext = createContext<TempStateContextInterface>(initialContextValue)

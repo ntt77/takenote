@@ -1,8 +1,6 @@
 import dayjs from 'dayjs'
-import { v4 as uuid } from 'uuid'
 import JSZip from 'jszip'
 import { Action } from 'redux'
-import * as clipboard from 'clipboard-polyfill/text'
 
 import { LabelText } from '@resources/LabelText'
 import { Folder, NotesSortKey } from '@/utils/enums'
@@ -13,7 +11,7 @@ export const getActiveNote = (notes: NoteItem[], activeNoteId: string) =>
   notes.find((note) => note.id === activeNoteId)
 
 export const getShortUuid = (uuid: string) => {
-  return uuid.substr(0, 6)
+  return uuid.slice(0, 6)
 }
 
 export const getActiveNoteFromShortUuid = (notes: NoteItem[], shortUuid: string) => {
@@ -83,15 +81,15 @@ export const downloadNotes = (notes: NoteItem[], categories: CategoryItem[]): vo
 
     zip.generateAsync({ type: 'blob' }).then(
       (content) => {
-        var downloadUrl = window.URL.createObjectURL(content)
-        var a = document.createElement('a')
+        const downloadUrl = window.URL.createObjectURL(content)
+        const a = document.createElement('a')
         a.href = downloadUrl
         a.download = 'notes.zip'
         document.body.appendChild(a)
         a.click()
         URL.revokeObjectURL(downloadUrl)
       },
-      (err) => {
+      (_err) => {
         // TODO: error generating zip file.
         // Generate a popup?
       }
@@ -110,15 +108,14 @@ export const backupNotes = (notes: NoteItem[], categories: CategoryItem[]) => {
   pom.download = `takenote-backup-${dayjs().format('YYYY-MM-DD')}.json`
   document.body.appendChild(pom)
 
-  // @ts-ignore
-  if (!window.Cypress) {
+  if (!(window as any).Cypress) {
     pom.click()
     URL.revokeObjectURL(downloadUrl)
   }
 }
 
 const newNote = (categoryId?: string, folder?: Folder): NoteItem => ({
-  id: uuid(),
+  id: crypto.randomUUID(),
   text: '',
   created: dayjs().format(),
   lastUpdated: dayjs().format(),
@@ -210,8 +207,8 @@ export const getWebsiteTitle = (activeFolder: Folder, activeCategory?: CategoryI
 
 export const determineAppClass = (
   darkTheme: boolean,
-  sidebarVisible: boolean,
-  activeFolder: Folder
+  _sidebarVisible: boolean,
+  _activeFolder: Folder
 ) => {
   let className = 'app'
 
@@ -236,14 +233,14 @@ export const determineCategoryClass = (
   }
 }
 
-export const debounceEvent = <T extends Function>(cb: T, wait = 20) => {
+export const debounceEvent = <T extends (...args: any[]) => any>(cb: T, wait = 20) => {
   let h = 0
-  const callable = (...args: any) => {
+  const callable = (...args: any[]) => {
     clearTimeout(h)
     h = window.setTimeout(() => cb(...args), wait)
   }
 
-  return <T>(<any>callable)
+  return callable as unknown as T
 }
 
 export const isDraftNote = (note: NoteItem) => {
@@ -251,16 +248,11 @@ export const isDraftNote = (note: NoteItem) => {
 }
 
 export const getDayJsLocale = (languagetoken: string): string => {
-  try {
-    require('dayjs/locale/' + languagetoken + '.js')
-
-    return languagetoken
-  } catch (error) {
-    if (languagetoken.includes('-'))
-      return getDayJsLocale(languagetoken.substring(0, languagetoken.lastIndexOf('-')))
-
-    return 'en'
+  if (languagetoken.includes('-')) {
+    return languagetoken.substring(0, languagetoken.lastIndexOf('-')).toLowerCase()
   }
+
+  return (languagetoken || 'en').toLowerCase()
 }
 
 export const getNoteBarConf = (
@@ -292,5 +284,5 @@ export const getNoteBarConf = (
 }
 
 export const copyToClipboard = (text: string) => {
-  clipboard.writeText(text)
+  navigator.clipboard.writeText(text)
 }

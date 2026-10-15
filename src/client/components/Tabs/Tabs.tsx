@@ -3,7 +3,7 @@ import React, { Fragment, useState } from 'react'
 import { Tab } from './Tab'
 
 export interface TabsProps {
-  children: JSX.Element[]
+  children: React.ReactElement<any>[]
 }
 
 export const Tabs: React.FC<TabsProps> = ({ children }) => {

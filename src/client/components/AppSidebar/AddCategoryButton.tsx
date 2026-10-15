@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus } from 'react-feather'
+import { Plus } from '@/icons'
 
 import { iconColor } from '@/utils/constants'
 

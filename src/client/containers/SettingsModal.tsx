@@ -9,7 +9,7 @@ import {
   Download,
   DownloadCloud,
   UploadCloud,
-} from 'react-feather'
+} from '@/icons'
 
 import {
   toggleSettingsModal,

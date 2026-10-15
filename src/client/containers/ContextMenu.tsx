@@ -11,7 +11,7 @@ import { ContextMenuEnum } from '@/utils/enums'
 import { isDraftNote } from '@/utils/helpers'
 
 export const MenuUtilitiesContext = createContext({
-  setOptionsId: (id: string) => {},
+  setOptionsId: (_id: string) => {},
 })
 interface Position {
   x: number
@@ -21,7 +21,7 @@ interface Position {
 export interface ContextMenuProps {
   item: NoteItem | CategoryItem
   optionsPosition: Position
-  contextMenuRef: React.RefObject<HTMLDivElement> | null
+  contextMenuRef: React.RefObject<HTMLDivElement | null> | null
   setOptionsId: (id: string) => void
   type: ContextMenuEnum
 }
@@ -67,7 +67,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     setOptionsId,
   }
 
-  const getOptionsYPosition = (): Number => {
+  const getOptionsYPosition = (): number => {
     if (elementDimensions.offsetHeight || elementDimensions.offsetWidth) {
       // get the max window frame
       const MaxY = window.innerHeight

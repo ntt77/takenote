@@ -53,7 +53,7 @@ function* fetchSettings(): Generator<any, void, any> {
     const data = yield requestSettings()
 
     yield put(loadSettingsSuccess(data))
-  } catch (error) {
+  } catch {
     yield put(loadSettingsError())
   }
 }
@@ -63,7 +63,9 @@ function* persistSettings(): Generator<any, void, any> {
     const settings = yield select(getSettings)
 
     yield saveSettings(settings)
-  } catch (error) {}
+  } catch {
+    // Ignore persistence errors
+  }
 }
 
 function* rootSaga() {

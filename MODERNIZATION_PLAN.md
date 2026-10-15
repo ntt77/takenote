@@ -10,8 +10,8 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 - [x] **Cleanup:** Stripped legacy Docker, Kubernetes, Travis CI, Cypress/Jest, and Express server files.
 - [x] **Local-First Foundation:** Converted data persistence to direct browser `localStorage`.
 - [x] **Vercel Readiness:** Configured `vercel.json` for seamless SPA deployments.
-- [ ] **Phase 1: React 19 Core & Deprecations (Immediate)**
-- [ ] **Phase 2: Modern Layout & CodeMirror 6 Editor**
+- [x] **Phase 1: React 19 Core & Deprecations (Completed)**
+- [ ] **Phase 2: Modern Layout, Vanilla CSS & CodeMirror 6 Editor**
 - [ ] **Phase 3: State Management Overhaul (Redux $\rightarrow$ Zustand)**
 - [ ] **Phase 4: Routing & Polish (Wouter)**
 - [ ] **Phase 5: Optional Enhancements (Deferred / On-demand)**
@@ -48,7 +48,7 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 
 ---
 
-## Phase 2: Modern Layout & Editor Overhaul
+## Phase 2: Modern Layout, Vanilla CSS & Editor Overhaul
 
 ### 2.1 Resizable Panels
 * **Current:** `react-split-pane` (Abandoned in 2019).
@@ -71,6 +71,15 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 * **Target:** **`react-markdown` v9 + `remark-gfm`**.
 * **Benefits:** Modern Micromark parser, GitHub Flavored Markdown (tables, task lists, strikethrough), and full type safety.
 
+### 2.4 Styling Modernization: SCSS $\rightarrow$ Vanilla CSS
+* **Current:** SASS/SCSS (`sass@^1.83.0`, 19 partials, compile-time `$variables`, deprecated `@import`).
+* **Target:** **Native Vanilla CSS** (CSS Custom Properties `--var` + Native CSS Nesting).
+* **Benefits:**
+  * Eliminates the heavy `sass` compiler dependency.
+  * Shaves ~3.8 seconds off build time (plain CSS is processed instantly with zero build overhead).
+  * Replaces 6.3KB duplicated `_dark.scss` with clean, runtime CSS custom properties on `:root` and `.dark`.
+  * Future-proof and native (no preprocessor quirks or deprecated `@import` syntax).
+
 ---
 
 ## Phase 3: State Management Overhaul (Redux $\rightarrow$ Zustand)
@@ -88,16 +97,17 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 
 ---
 
-## Phase 4: Routing & Polish
+## Phase 4: Single-Screen Architecture & Zero-Routing (Completed)
 
-### 4.1 Lightweight Routing with Wouter
-* **Current:** `react-router-dom` v5.3 (2019, ~45KB).
-* **Target:** **`wouter`** (~1.5KB, zero-dependency).
+### 4.1 Landing Page & Router Elimination
+* **Status:** ✅ **Completed**
+* **Previous:** `react-router-dom` v5.3 (2019, ~45KB), `LandingPage.tsx`, `react-device-detect`, and external `history` package.
+* **Result:** **Zero Router (0 KB Overhead)**
 * **Benefits:**
-  * Native React 19 support.
-  * Eliminates ~40KB of unused routing overhead.
-  * Direct drop-in for `<Route>`, `<Switch>`, and `<Redirect>` without complex Remix/v7 config.
-  * Eliminates the external `history` package.
+  * TakeNote is a single-screen, local-first markdown note-taking app. There are no secondary pages.
+  * Direct load on `localhost:3000/` straight into `<TakeNoteApp />`.
+  * Removed `react-router-dom`, `@types/react-router`, `@types/react-router-dom`, `react-device-detect`, and `history` (13 packages uninstalled).
+  * Completely eliminated unnecessary routing layer, reducing bundle size and speeding up hydration.
 
 ---
 
@@ -121,8 +131,9 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 | **React Version** | 18.3.1 | **19.3.0** |
 | **Bundler** | Vite 8 (Rolldown) | **Vite 8 (Rolldown)** |
 | **State Library** | Redux + Saga (15KB+) | **Zustand (1.2KB)** |
-| **Routing** | react-router-dom v5 (45KB) | **wouter (1.5KB)** |
+| **Routing** | react-router-dom v5 (45KB) | **None / Zero Router (0 KB)** |
 | **Editor** | CodeMirror 5 (Legacy) | **CodeMirror 6 (Modular)** |
+| **Styling** | SCSS (`sass` compiler) | **Vanilla CSS (CSS Variables + Native Nesting)** |
 | **Icons** | react-feather (Frozen) | **@boxicons/react (Boxicons)** |
 | **Panels** | react-split-pane (2019) | **react-resizable-panels** |
 | **Production Bundle** | ~1.46 MB | **< 600 KB** |

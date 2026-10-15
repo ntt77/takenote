@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { v4 as uuid } from 'uuid'
-import { Droppable } from 'react-beautiful-dnd'
+import { Droppable } from '@hello-pangea/dnd'
 
 import { LabelText } from '@resources/LabelText'
 import { TestID } from '@resources/TestID'
@@ -116,7 +115,7 @@ export const CategoryList: React.FC = () => {
   const onSubmitNewCategory = (event: ReactSubmitEvent): void => {
     event.preventDefault()
 
-    const category = { id: uuid(), name: tempCategoryName.trim(), draggedOver: false }
+    const category = { id: crypto.randomUUID(), name: tempCategoryName.trim(), draggedOver: false }
 
     if (categories.find((cat) => cat.name === category.name) || category.name === '') {
       resetTempCategory()

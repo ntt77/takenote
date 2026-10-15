@@ -7,7 +7,9 @@ const noop = () => {}
 
 export function useKey(key: string, action: () => void) {
   const actionRef = useRef(noop)
-  actionRef.current = action
+  useEffect(() => {
+    actionRef.current = action
+  })
 
   useEffect(() => {
     mousetrap.bindGlobal(key, (event: Event) => {

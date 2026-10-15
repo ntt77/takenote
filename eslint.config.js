@@ -8,7 +8,7 @@ import { defineConfig } from 'eslint/config'
 
 export default defineConfig(
   {
-    ignores: ['dist', 'node_modules', 'coverage', '.vite', 'build'],
+    ignores: ['dist', 'node_modules', 'coverage', '.vite', 'build', '.eslintcache'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -26,7 +26,7 @@ export default defineConfig(
     },
     settings: {
       react: {
-        version: '18.3',
+        version: '19.0',
       },
     },
     rules: {

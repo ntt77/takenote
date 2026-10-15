@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { MoreHorizontal, Book, Star, Folder as FolderIcon } from 'react-feather'
+import { MoreHorizontal, Book, Star, Folder as FolderIcon } from '@/icons'
 
 import { TestID } from '@resources/TestID'
 import { Folder, Shortcuts, ContextMenuEnum } from '@/utils/enums'
@@ -52,7 +52,7 @@ export const NoteList: React.FC = () => {
   // ===========================================================================
 
   const contextMenuRef = useRef<HTMLDivElement>(null)
-  const searchRef = React.useRef() as React.MutableRefObject<HTMLInputElement>
+  const searchRef = React.useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
   // ===========================================================================
   // State
@@ -240,7 +240,7 @@ export const NoteList: React.FC = () => {
               </div>
               {(activeFolder === Folder.ALL || activeFolder === Folder.FAVORITES) && (
                 <div className="note-category">
-                  {!!noteCategory ? (
+                  {noteCategory ? (
                     <>
                       <FolderIcon size={12} className="context-menu-action" />
                       {noteCategory?.name}

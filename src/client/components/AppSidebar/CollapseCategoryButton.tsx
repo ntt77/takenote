@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronDown, ChevronRight, Layers } from 'react-feather'
+import { ChevronDown, ChevronRight, Layers } from '@/icons'
 
 export interface CollapseCategoryListButton {
   dataTestID: string

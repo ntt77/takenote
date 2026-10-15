@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { v4 as uuid } from 'uuid'
 
 import { Folder, NotesSortKey } from '@/utils/enums'
 import { NoteItem, NoteState } from '@/types'
@@ -70,7 +69,7 @@ const noteSlice = createSlice({
 
     importNotes: (state, { payload }: PayloadAction<NoteItem[]>) => {
       const toAdd = payload.map((note) => {
-        note.id = uuid()
+        note.id = crypto.randomUUID()
 
         return note
       })

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Edit } from 'react-feather'
+import { Edit } from '@/icons'
 
 import { TestID } from '@resources/TestID'
 import { LabelText } from '@resources/LabelText'
@@ -8,7 +8,7 @@ import { iconColor } from '@/utils/constants'
 
 export interface ScratchpadOptionProps {
   active: boolean
-  swapFolder: (folder: Folder) => {}
+  swapFolder: (folder: Folder) => void
 }
 
 export const ScratchpadOption: React.FC<ScratchpadOptionProps> = ({ active, swapFolder }) => {

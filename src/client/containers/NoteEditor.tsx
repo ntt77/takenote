@@ -43,7 +43,7 @@ export const NoteEditor: React.FC = () => {
     editor.addOverlay({
       token: function (stream: any) {
         query.lastIndex = stream.pos
-        var match = query.exec(stream.string)
+        const match = query.exec(stream.string)
         if (match && match.index == stream.pos) {
           stream.pos += match[0].length || 1
 

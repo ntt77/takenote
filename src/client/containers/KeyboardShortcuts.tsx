@@ -16,7 +16,7 @@ import {
   updateNote,
 } from '@/slices/note'
 import { getCategories, getNotes, getSettings } from '@/selectors'
-import { CategoryItem, NoteItem } from '@/types'
+import { NoteItem } from '@/types'
 import { toggleDarkTheme, togglePreviewMarkdown, updateCodeMirrorOption } from '@/slices/settings'
 
 export const KeyboardShortcuts: React.FC = () => {

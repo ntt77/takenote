@@ -1,10 +1,9 @@
-import { v4 as uuid } from 'uuid'
 import dayjs from 'dayjs'
 
 import { NoteItem, StatePayload, SettingsState } from '@/types'
 
 const scratchpadNote = {
-  id: uuid(),
+  id: crypto.randomUUID(),
   text: `# Scratchpad
 
 The easiest note to find.`,
@@ -39,7 +38,7 @@ View the source on [Github](https://github.com/taniarascia/takenote).
 `
 
 const welcomeNote = {
-  id: uuid(),
+  id: crypto.randomUUID(),
   text: markdown,
   category: '',
   favorite: false,
@@ -95,7 +94,7 @@ export const saveState = ({ categories, notes }: StatePayload) => {
   localStorage.setItem('notes', JSON.stringify(notes))
 }
 
-export const saveSettings = ({ isOpen, ...settings }: SettingsState) =>
+export const saveSettings = ({ isOpen: _isOpen, ...settings }: SettingsState) =>
   Promise.resolve(localStorage.setItem('settings', JSON.stringify(settings)))
 
 export const requestNotes = () => new Promise(getUserNotes())
