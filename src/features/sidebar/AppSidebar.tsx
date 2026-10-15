@@ -1,0 +1,77 @@
+import { Box, ScrollArea } from '@mantine/core';
+import { FcPlus } from 'react-icons/fc';
+
+import { ActionButton } from '@/features/sidebar/components/ActionButton';
+import { FolderOption } from '@/features/sidebar/components/FolderOption';
+import { ScratchpadOption } from '@/features/sidebar/components/ScratchpadOption';
+import { Folder } from '@/utils/enums';
+import { CategoryList } from '@/features/sidebar/CategoryList';
+import { NoteItem } from '@/types';
+import { newNoteHandlerHelper, getActiveNote } from '@/utils/helpers';
+import { useNotesStore, useSettingsStore } from '@/store';
+
+export const AppSidebar = () => {
+  // ===========================================================================
+  // Stores
+  // ===========================================================================
+
+  const {
+    activeCategoryId,
+    activeFolder,
+    activeNoteId,
+    notes,
+    addNote,
+    swapFolder,
+    updateActiveNote,
+    assignFavoriteToNotes,
+    assignTrashToNotes,
+    updateSelectedNotes,
+    unassignTrashFromNotes,
+  } = useNotesStore();
+  const { previewMarkdown, notesSortKey, togglePreviewMarkdown } = useSettingsStore();
+
+  const activeNote = getActiveNote(notes, activeNoteId);
+
+  const _addNote = (note: NoteItem) => addNote(note);
+  const _updateActiveNote = (noteId: string, multiSelect: boolean) => updateActiveNote({ noteId, multiSelect });
+  const _updateSelectedNotes = (noteId: string, multiSelect: boolean) => updateSelectedNotes({ noteId, multiSelect });
+  const _swapFolder = (folder: Folder) => swapFolder({ folder, sortOrderKey: notesSortKey });
+  const _togglePreviewMarkdown = () => togglePreviewMarkdown();
+  const _assignTrashToNotes = (noteId: string) => assignTrashToNotes(noteId);
+  const _unassignTrashFromNotes = (noteId: string) => unassignTrashFromNotes(noteId);
+  const _assignFavoriteToNotes = (noteId: string) => assignFavoriteToNotes(noteId);
+
+  // ===========================================================================
+  // Handlers
+  // ===========================================================================
+
+  const newNoteHandler = () =>
+    newNoteHandlerHelper(activeFolder, previewMarkdown, activeNote, activeCategoryId, _swapFolder, _togglePreviewMarkdown, _addNote, _updateActiveNote, _updateSelectedNotes);
+
+  return (
+    <Box
+      component="aside"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        backgroundColor: '#2d2d2d',
+        color: '#d0d0d0',
+        borderRight: '1px solid #131313',
+        zIndex: 3,
+      }}>
+      <Box p="xs">
+        <ActionButton handler={newNoteHandler} icon={FcPlus} label="Create new note" text="New note" />
+      </Box>
+      <ScrollArea style={{ flex: 1 }} type="hover">
+        <Box component="section" pb="md" style={{ flex: 1, position: 'relative' }}>
+          <ScratchpadOption active={activeFolder === Folder.SCRATCHPAD} swapFolder={_swapFolder} />
+          <FolderOption active={activeFolder === Folder.ALL} swapFolder={_swapFolder} text="Notes" folder={Folder.ALL} addNoteType={_unassignTrashFromNotes} />
+          <FolderOption active={activeFolder === Folder.FAVORITES} text="Favorites" folder={Folder.FAVORITES} swapFolder={_swapFolder} addNoteType={_assignFavoriteToNotes} />
+          <FolderOption active={activeFolder === Folder.TRASH} text="Trash" folder={Folder.TRASH} swapFolder={_swapFolder} addNoteType={_assignTrashToNotes} />
+          <CategoryList />
+        </Box>
+      </ScrollArea>
+    </Box>
+  );
+};

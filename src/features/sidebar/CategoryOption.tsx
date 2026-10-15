@@ -1,0 +1,194 @@
+import React from 'react';
+import { Draggable } from '@hello-pangea/dnd';
+import { Menu, TextInput, Box, ActionIcon } from '@mantine/core';
+import { FcFolder, FcOpenedFolder } from 'react-icons/fc';
+import { MdMoreVert, MdEdit, MdDelete } from 'react-icons/md';
+
+import { CategoryItem, ReactDragEvent, ReactSubmitEvent } from '@/types';
+import { Folder } from '@/utils/enums';
+import { getNotesSorter } from '@/utils/notesSortStrategies';
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { ConfirmationModal } from '@/features/common/ConfirmationModal';
+
+interface CategoryOptionProps {
+  category: CategoryItem;
+  index: number;
+  onSubmitUpdateCategory: (event: ReactSubmitEvent) => void;
+}
+
+export const CategoryOption = ({ category, index, onSubmitUpdateCategory }: CategoryOptionProps) => {
+  // ===========================================================================
+  // Stores
+  // ===========================================================================
+
+  const { activeCategoryId, notes, updateActiveCategoryId, updateActiveNote, updateSelectedNotes, addCategoryToNote, removeCategoryFromNotes, swapFolder } = useNotesStore();
+  const {
+    editingCategory: { id: editingCategoryId, tempName: tempCategoryName },
+    setCategoryEdit,
+    deleteCategory,
+    categoryDragLeave,
+    categoryDragEnter,
+  } = useCategoriesStore();
+  const { notesSortKey } = useSettingsStore();
+
+  const _updateActiveCategoryId = (categoryId: string) => updateActiveCategoryId(categoryId);
+  const _updateActiveNote = (noteId: string, multiSelect: boolean) => updateActiveNote({ noteId, multiSelect });
+  const _updateSelectedNotes = (noteId: string, multiSelect: boolean) => updateSelectedNotes({ noteId, multiSelect });
+  const _setCategoryEdit = (categoryId: string, tempName: string) => setCategoryEdit({ id: categoryId, tempName });
+  const _addCategoryToNote = (categoryId: string, noteId: string) => addCategoryToNote({ categoryId, noteId });
+  const _deleteCategory = (categoryId: string) => deleteCategory(categoryId);
+  const _removeCategoryFromNotes = (categoryId: string) => removeCategoryFromNotes(categoryId);
+  const _swapFolder = (folder: Folder) => swapFolder({ folder });
+  const _categoryDragEnter = (cat: CategoryItem) => categoryDragEnter(cat);
+  const _categoryDragLeave = (cat: CategoryItem) => categoryDragLeave(cat);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+
+  const startRename = () => {
+    _setCategoryEdit(category.id, category.name);
+  };
+
+  const removeCategory = () => {
+    _deleteCategory(category.id);
+    _removeCategoryFromNotes(category.id);
+    _swapFolder(Folder.ALL);
+  };
+
+  return (
+    <>
+      <ConfirmationModal
+        opened={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={removeCategory}
+        title="Delete category"
+        message={`Are you sure you want to delete category "${category.name}"? Notes inside will not be deleted, but will become uncategorized.`}
+        confirmLabel="Delete"
+        danger
+      />
+      <Draggable draggableId={category.id} index={index}>
+        {(draggableProvided, snapshot) => (
+          <Menu shadow="md" width={180} withinPortal position="bottom-end">
+            <Menu.ContextMenu>
+              <Box
+                {...draggableProvided.dragHandleProps}
+                {...draggableProvided.draggableProps}
+                ref={draggableProvided.innerRef}
+                onClick={() => {
+                  const notesForNewCategory = notes.filter((note) => !note.trash && note.category === category.id).sort(getNotesSorter(notesSortKey));
+
+                  const defaultActiveNoteId = notesForNewCategory.length > 0 ? notesForNewCategory[0].id : '';
+
+                  if (category.id !== activeCategoryId) {
+                    _updateActiveCategoryId(category.id);
+                    _updateActiveNote(defaultActiveNoteId, false);
+                    _updateSelectedNotes(defaultActiveNoteId, false);
+                  }
+                }}
+                onDoubleClick={startRename}
+                onBlur={() => {
+                  _setCategoryEdit('', '');
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+
+                  _addCategoryToNote(category.id, event.dataTransfer.getData('text'));
+                  _categoryDragLeave(category);
+                }}
+                onDragOver={(event: ReactDragEvent) => event.preventDefault()}
+                onDragEnter={() => _categoryDragEnter(category)}
+                onDragLeave={() => _categoryDragLeave(category)}
+                className={[
+                  'category-option-item',
+                  category.id === activeCategoryId ? 'active' : '',
+                  category.draggedOver ? 'dragged-over' : '',
+                  snapshot.isDragging ? 'dragging' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}>
+                <Box
+                  component="form"
+                  style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    _setCategoryEdit('', '');
+                    onSubmitUpdateCategory(event);
+                  }}>
+                  <Box mr="0.75rem" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                    {activeCategoryId === category.id ? <FcOpenedFolder size={17} /> : <FcFolder size={17} />}
+                  </Box>
+                  {editingCategoryId === category.id ? (
+                    <TextInput
+                      size="xs"
+                      autoFocus
+                      maxLength={20}
+                      value={tempCategoryName}
+                      onChange={(event) => {
+                        _setCategoryEdit(editingCategoryId, event.currentTarget.value);
+                      }}
+                      onBlur={(event) => onSubmitUpdateCategory(event)}
+                      styles={{
+                        root: {
+                          flex: 1,
+                          minWidth: 0,
+                          marginRight: '0.5rem',
+                        },
+                        wrapper: {
+                          width: '100%',
+                        },
+                        input: {
+                          width: '100%',
+                          backgroundColor: '#202020',
+                          borderColor: 'rgba(255, 255, 255, 0.25)',
+                          color: '#eee',
+                          fontSize: '0.85rem',
+                          height: '24px',
+                          minHeight: '24px',
+                          padding: '0 6px',
+                          borderRadius: '3px',
+                          '&:focus': {
+                            borderColor: '#5183f5',
+                          },
+                        },
+                      }}
+                    />
+                  ) : (
+                    <Box style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{category.name}</Box>
+                  )}
+                </Box>
+                <Menu.Target>
+                  <ActionIcon
+                    variant="subtle"
+                    size="sm"
+                    color="gray"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                    }}
+                    styles={{
+                      root: {
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        '&:hover': {
+                          color: 'white',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                      },
+                    }}>
+                    <MdMoreVert size={18} />
+                  </ActionIcon>
+                </Menu.Target>
+              </Box>
+            </Menu.ContextMenu>
+
+            <Menu.Dropdown>
+              <Menu.Item leftSection={<MdEdit size={16} />} onClick={startRename}>
+                Rename
+              </Menu.Item>
+              <Menu.Item color="red" leftSection={<MdDelete size={16} />} onClick={() => setIsDeleteModalOpen(true)}>
+                Delete
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        )}
+      </Draggable>
+    </>
+  );
+};

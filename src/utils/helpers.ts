@@ -1,0 +1,199 @@
+import dayjs from 'dayjs';
+import JSZip from 'jszip';
+
+import { Folder } from '@/utils/enums';
+import { folderMap } from '@/utils/constants';
+import { NoteItem, CategoryItem } from '@/types';
+
+export const getActiveNote = (notes: NoteItem[], activeNoteId: string) => notes.find((note) => note.id === activeNoteId);
+
+export const getShortUuid = (uuid: string) => {
+  return uuid.slice(0, 6);
+};
+
+export const getActiveNoteFromShortUuid = (notes: NoteItem[], shortUuid: string) => {
+  const uuidWithoutHash = shortUuid.replace('{{', '').replace('}}', '');
+
+  return notes.find((note) => note.id.startsWith(uuidWithoutHash));
+};
+
+export const getActiveCategory = (categories: CategoryItem[], activeCategoryId: string) => categories.find(({ id }) => id === activeCategoryId);
+
+export const getNoteTitle = (text: string): string => {
+  // Remove whitespace from both ends
+  // Get the first n characters
+  // Remove # from the title in the case of using markdown headers in your title
+  const noteText = text.trim().match(/[^#]{1,45}/);
+
+  // Get the first line of text after any newlines
+  // In the future, this should break on a full word
+  return noteText ? noteText[0].trim().split(/\r?\n/)[0] : 'New note';
+};
+
+export const noteWithFrontmatter = (note: NoteItem, category?: CategoryItem): string =>
+  `---
+title: ${getNoteTitle(note.text)}
+created: ${note.created}
+lastUpdated: ${note.lastUpdated}
+category: ${category?.name ?? ''}
+---
+
+${note.text}`;
+
+// Downloads a single note as a markdown file or a group of notes as a zip file.
+export const downloadNotes = (notes: NoteItem[], categories: CategoryItem[]): void => {
+  if (notes.length === 1) {
+    const pom = document.createElement('a');
+
+    pom.setAttribute(
+      'href',
+      `data:text/plain;charset=utf-8,${encodeURIComponent(
+        noteWithFrontmatter(
+          notes[0],
+          categories.find((category: CategoryItem) => category.id === notes[0].category)
+        )
+      )}`
+    );
+    pom.setAttribute('download', `${getNoteTitle(notes[0].text)}.md`);
+
+    if (document.createEvent) {
+      const event = document.createEvent('MouseEvents');
+      event.initEvent('click', true, true);
+      pom.dispatchEvent(event);
+    } else {
+      pom.click();
+    }
+  } else {
+    const zip = new JSZip();
+    notes.forEach((note) =>
+      zip.file(
+        `${getNoteTitle(note.text)} (${note.id.substring(0, 6)}).md`,
+        noteWithFrontmatter(
+          note,
+          categories.find((category: CategoryItem) => category.id === note.category)
+        )
+      )
+    );
+
+    zip.generateAsync({ type: 'blob' }).then(
+      (content) => {
+        const downloadUrl = window.URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = 'notes.zip';
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(downloadUrl);
+      },
+      (_err) => {
+        // TODO: error generating zip file.
+        // Generate a popup?
+      }
+    );
+  }
+};
+
+export const backupNotes = (notes: NoteItem[], categories: CategoryItem[]) => {
+  const pom = document.createElement('a');
+
+  const json = JSON.stringify({ notes, categories });
+  const blob = new Blob([json], { type: 'application/json' });
+
+  const downloadUrl = window.URL.createObjectURL(blob);
+  pom.href = downloadUrl;
+  pom.download = `takenote-backup-${dayjs().format('YYYY-MM-DD')}.json`;
+  document.body.appendChild(pom);
+
+  if (!(window as any).Cypress) {
+    pom.click();
+    URL.revokeObjectURL(downloadUrl);
+  }
+};
+
+const newNote = (categoryId?: string, folder?: Folder): NoteItem => ({
+  id: crypto.randomUUID(),
+  text: '',
+  created: dayjs().format(),
+  lastUpdated: dayjs().format(),
+  category: categoryId,
+  favorite: folder === Folder.FAVORITES,
+});
+
+export const newNoteHandlerHelper = (
+  activeFolder: Folder,
+  previewMarkdown: boolean,
+  activeNote: NoteItem | undefined,
+  activeCategoryId: string,
+  swapFolder: (folder: Folder) => void,
+  togglePreviewMarkdown: () => void,
+  addNote: (note: NoteItem) => void,
+  updateActiveNote: (noteId: string, multiSelect: boolean) => void,
+  updateSelectedNotes: (noteId: string, multiSelect: boolean) => void
+) => {
+  if ([Folder.TRASH, Folder.SCRATCHPAD].indexOf(activeFolder) !== -1) {
+    swapFolder(Folder.ALL);
+  }
+
+  if (previewMarkdown) {
+    togglePreviewMarkdown();
+  }
+
+  if ((activeNote && activeNote.text !== '') || !activeNote) {
+    const note = newNote(activeCategoryId, activeFolder === Folder.TRASH ? Folder.ALL : activeFolder);
+    addNote(note);
+    updateSelectedNotes(note.id, false);
+    updateActiveNote(note.id, false);
+  }
+};
+
+export const getWebsiteTitle = (activeFolder: Folder, activeCategory?: CategoryItem) => {
+  // Show category name if category is active
+  if (activeFolder === Folder.CATEGORY && activeCategory) {
+    return `${activeCategory.name} | TakeNote`;
+  } else {
+    // Show main folder name otherwise
+    return `${folderMap[activeFolder]} | TakeNote`;
+  }
+};
+
+export const determineAppClass = (_sidebarVisible: boolean, _activeFolder: Folder) => {
+  return 'app';
+};
+
+export const determineCategoryClass = (category: CategoryItem, isDragging: boolean, activeCategoryId: string) => {
+  if (category.draggedOver) {
+    return 'category-list-each dragged-over';
+  } else if (category.id === activeCategoryId) {
+    return 'category-list-each active';
+  } else if (isDragging) {
+    return 'category-list-each dragging';
+  } else {
+    return 'category-list-each';
+  }
+};
+
+export const debounceEvent = <T extends (...args: any[]) => any>(cb: T, wait = 20) => {
+  let h = 0;
+  const callable = (...args: any[]) => {
+    clearTimeout(h);
+    h = window.setTimeout(() => cb(...args), wait);
+  };
+
+  return callable as unknown as T;
+};
+
+export const isDraftNote = (note: NoteItem) => {
+  return !note.scratchpad && note.text === '';
+};
+
+export const getDayJsLocale = (languagetoken: string): string => {
+  if (languagetoken.includes('-')) {
+    return languagetoken.substring(0, languagetoken.lastIndexOf('-')).toLowerCase();
+  }
+
+  return (languagetoken || 'en').toLowerCase();
+};
+
+export const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text);
+};
