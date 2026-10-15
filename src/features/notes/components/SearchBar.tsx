@@ -1,5 +1,7 @@
 import React from 'react';
+import { TextField } from '@radix-ui/themes';
 
+import { Search } from '@/icons';
 import { TestID } from '@/constants/TestID';
 
 export interface SearchBarProps {
@@ -9,18 +11,24 @@ export interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = ({ searchRef, searchNotes }) => {
   return (
-    <input
+    <TextField.Root
       ref={searchRef}
       data-testid={TestID.NOTE_SEARCH}
       type="search"
+      placeholder="Search for notes"
+      size="2"
+      variant="surface"
+      style={{ width: '100%' }}
       onChange={(event) => {
         event.preventDefault();
         searchNotes(event.target.value);
       }}
-      placeholder="Search for notes"
       onDragOver={(e) => {
         e.preventDefault();
-      }}
-    />
+      }}>
+      <TextField.Slot>
+        <Search size={15} />
+      </TextField.Slot>
+    </TextField.Root>
   );
 };

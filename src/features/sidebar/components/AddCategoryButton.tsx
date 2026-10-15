@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tooltip } from '@radix-ui/themes';
 import { Plus } from '@/icons';
 
 import { iconColor } from '@/utils/constants';
@@ -11,8 +12,10 @@ export interface AddCategoryButtonProps {
 
 export const AddCategoryButton: React.FC<AddCategoryButtonProps> = ({ dataTestID, handler, label }) => {
   return (
-    <button data-testid={dataTestID} className="category-button" onClick={() => handler(true)} aria-label={label}>
-      <Plus size={16} color={iconColor} />
-    </button>
+    <Tooltip content={label}>
+      <button data-testid={dataTestID} className="category-button" onClick={() => handler(true)} aria-label={label}>
+        <Plus size={16} color={iconColor} />
+      </button>
+    </Tooltip>
   );
 };

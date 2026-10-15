@@ -1,4 +1,5 @@
 import React from 'react';
+import { Kbd } from '@radix-ui/themes';
 
 export interface ShortcutProps {
   action: string;
@@ -10,7 +11,7 @@ export const Shortcut: React.FC<ShortcutProps> = ({ action, letter }) => {
     <div className="settings-shortcut">
       <div>{action}</div>
       <div className="keys">
-        <kbd>CTRL</kbd> + <kbd>ALT</kbd> + <kbd>{letter}</kbd>
+        <Kbd size="2">CTRL</Kbd> + <Kbd size="2">ALT</Kbd> + <Kbd size="2">{letter}</Kbd>
       </div>
     </div>
   );

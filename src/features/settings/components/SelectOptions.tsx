@@ -1,6 +1,5 @@
 import React from 'react';
-
-import { Select } from '@/components/ui/Select';
+import { Select } from '@radix-ui/themes';
 
 export interface OptionProps {
   title: string;
@@ -18,7 +17,16 @@ export const SelectOptions: React.FC<OptionProps> = ({ title, description, onCha
         <h3>{title}</h3>
         <p className="description">{description}</p>
       </div>
-      <Select options={options} onChange={onChange} selectedValue={selectedValue} testId={testId} />
+      <Select.Root value={selectedValue} onValueChange={(val) => onChange({ value: val })}>
+        <Select.Trigger data-testid={testId} />
+        <Select.Content>
+          {options.map((option) => (
+            <Select.Item key={option.value} value={option.value}>
+              {option.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
     </div>
   );
 };

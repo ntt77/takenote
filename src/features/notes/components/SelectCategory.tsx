@@ -1,11 +1,12 @@
 import React from 'react';
+import { Select, Box } from '@radix-ui/themes';
 
 import { TestID } from '@/constants/TestID';
 import { NoteItem, CategoryItem } from '@/types';
 import { isDraftNote } from '@/utils/helpers';
 
 export interface SelectCategoryProps {
-  onChange: (selectedOption: any) => void;
+  onChange: (event: { target: { value: string } }) => void;
   categories: CategoryItem[];
   note: NoteItem;
   activeCategoryId: string;
@@ -14,22 +15,22 @@ export interface SelectCategoryProps {
 export const SelectCategory: React.FC<SelectCategoryProps> = ({ onChange, categories, note, activeCategoryId }) => {
   const filteredCategories = categories.filter(({ id }) => id !== activeCategoryId).filter((category) => category.id !== note.category);
 
+  if (note.trash || isDraftNote(note) || filteredCategories.length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      {!note.trash && !isDraftNote(note) && filteredCategories.length > 0 && (
-        <select data-testid={TestID.MOVE_TO_CATEGORY} defaultValue="" className="nav-item move-to-category-select" onChange={onChange}>
-          <option disabled value="">
-            Move to category...
-          </option>
-          {filteredCategories
-            .filter((category) => category.id !== note.category)
-            .map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-        </select>
-      )}
-    </>
+    <Box p="2" data-testid={TestID.MOVE_TO_CATEGORY}>
+      <Select.Root onValueChange={(value) => onChange({ target: { value } })}>
+        <Select.Trigger placeholder="Move to category..." style={{ width: '100%' }} />
+        <Select.Content position="popper">
+          {filteredCategories.map((category) => (
+            <Select.Item key={category.id} value={category.id}>
+              {category.name}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+    </Box>
   );
 };

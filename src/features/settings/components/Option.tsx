@@ -1,6 +1,5 @@
 import React from 'react';
-
-import { Switch } from '@/components/ui/Switch';
+import { Switch } from '@radix-ui/themes';
 
 export interface OptionProps {
   title: string;
@@ -17,7 +16,7 @@ export const Option: React.FC<OptionProps> = ({ title, description, toggle, chec
         <h3>{title}</h3>
         <p className="description">{description}</p>
       </div>
-      <Switch toggle={toggle} checked={checked} testId={testId} />
+      <Switch checked={checked} onCheckedChange={toggle} data-testid={testId} />
     </div>
   );
 };

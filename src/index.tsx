@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from '@/App';
 
 import '@/styles/index.css';
+import '@radix-ui/themes/styles.css';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);

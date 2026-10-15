@@ -26,20 +26,9 @@ export interface CategoryItem {
   draggedOver: boolean;
 }
 
-export interface GithubUser {
-  [anyProp: string]: any;
-}
-
 //==============================================================================
 // State
 //==============================================================================
-
-export interface AuthState {
-  loading: boolean;
-  currentUser: GithubUser;
-  isAuthenticated: boolean;
-  error?: string;
-}
 
 export interface CategoryState {
   categories: CategoryItem[];
@@ -73,7 +62,6 @@ export interface SettingsState {
 }
 
 export interface RootState {
-  authState: AuthState;
   categoryState: CategoryState;
   noteState: NoteState;
   settingsState: SettingsState;

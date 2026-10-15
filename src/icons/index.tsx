@@ -37,6 +37,7 @@ import {
   QuoteLeft as BxQuoteLeft,
   Link as BxLink,
   Table as BxTable,
+  Search as BxSearch,
 } from '@boxicons/react';
 
 export interface IconProps extends Omit<BoxIconProps, 'size'> {
@@ -116,3 +117,4 @@ export const CheckboxChecked = createIcon(BxCheckboxChecked);
 export const QuoteLeft = createIcon(BxQuoteLeft);
 export const Link = createIcon(BxLink);
 export const Table = createIcon(BxTable);
+export const Search = createIcon(BxSearch);

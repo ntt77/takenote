@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Tooltip } from '@radix-ui/themes';
 import { Eye, Edit, Star, Trash2, Download, Settings, Sun, Moon, Clipboard as ClipboardCmp } from '@/icons';
 
 import { TestID } from '@/constants/TestID';
@@ -68,51 +69,70 @@ export const NoteMenuBar = () => {
     <section className="note-menu-bar">
       {activeNote && !isDraftNote(activeNote) ? (
         <nav>
-          <button className="note-menu-bar-button" onClick={togglePreviewHandler} data-testid={TestID.PREVIEW_MODE}>
-            {isToggled ? <Edit aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
-            <span className="sr-only">{isToggled ? 'Edit note' : 'Preview note'}</span>
-          </button>
+          <Tooltip content={isToggled ? 'Edit note' : 'Preview note'}>
+            <button className="note-menu-bar-button" onClick={togglePreviewHandler} data-testid={TestID.PREVIEW_MODE} aria-label={isToggled ? 'Edit note' : 'Preview note'}>
+              {isToggled ? <Edit aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
+              <span className="sr-only">{isToggled ? 'Edit note' : 'Preview note'}</span>
+            </button>
+          </Tooltip>
+
           {!activeNote.scratchpad && (
             <>
-              <button className="note-menu-bar-button" onClick={favoriteNoteHandler}>
-                <Star aria-hidden="true" size={18} />
-                <span className="sr-only">Add note to favorites</span>
-              </button>
-              <button className="note-menu-bar-button trash" onClick={trashNoteHandler}>
-                <Trash2 aria-hidden="true" size={18} />
-                <span className="sr-only">Delete note</span>
-              </button>
+              <Tooltip content={activeNote.favorite ? 'Remove favorite' : 'Add to favorites'}>
+                <button className="note-menu-bar-button" onClick={favoriteNoteHandler} aria-label="Add note to favorites">
+                  <Star aria-hidden="true" size={18} />
+                  <span className="sr-only">Add note to favorites</span>
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Delete note">
+                <button className="note-menu-bar-button trash" onClick={trashNoteHandler} aria-label="Delete note">
+                  <Trash2 aria-hidden="true" size={18} />
+                  <span className="sr-only">Delete note</span>
+                </button>
+              </Tooltip>
             </>
           )}
-          <button className="note-menu-bar-button">
-            <Download aria-hidden="true" size={18} onClick={downloadNotesHandler} />
-            <span className="sr-only">Download note</span>
-          </button>
-          <button
-            className="note-menu-bar-button uuid"
-            onClick={() => {
-              copyToClipboard(`{{${shortNoteUuid}}}`);
-              setUuidCopiedText(successfulCopyMessage);
-            }}
-            data-testid={TestID.UUID_MENU_BAR_COPY_ICON}>
-            {copyNoteIcon}
-            {uuidCopiedText && <span className="uuid-copied-text">{uuidCopiedText}</span>}
-            <span className="sr-only">Copy note</span>
-          </button>
+
+          <Tooltip content="Download note">
+            <button className="note-menu-bar-button" onClick={downloadNotesHandler} aria-label="Download note">
+              <Download aria-hidden="true" size={18} />
+              <span className="sr-only">Download note</span>
+            </button>
+          </Tooltip>
+
+          <Tooltip content="Copy note reference">
+            <button
+              className="note-menu-bar-button uuid"
+              onClick={() => {
+                copyToClipboard(`{{${shortNoteUuid}}}`);
+                setUuidCopiedText(successfulCopyMessage);
+              }}
+              aria-label="Copy note"
+              data-testid={TestID.UUID_MENU_BAR_COPY_ICON}>
+              {copyNoteIcon}
+              {uuidCopiedText && <span className="uuid-copied-text">{uuidCopiedText}</span>}
+              <span className="sr-only">Copy note</span>
+            </button>
+          </Tooltip>
         </nav>
       ) : (
         <div />
       )}
       <nav>
-        <button className="note-menu-bar-button" onClick={toggleDarkThemeHandler}>
-          {darkTheme ? <Sun aria-hidden="true" size={18} /> : <Moon aria-hidden="true" size={18} />}
-          <span className="sr-only">Themes</span>
-        </button>
+        <Tooltip content={darkTheme ? 'Switch to light mode' : 'Switch to dark mode'}>
+          <button className="note-menu-bar-button" onClick={toggleDarkThemeHandler} aria-label="Themes">
+            {darkTheme ? <Sun aria-hidden="true" size={18} /> : <Moon aria-hidden="true" size={18} />}
+            <span className="sr-only">Themes</span>
+          </button>
+        </Tooltip>
 
-        <button className="note-menu-bar-button" onClick={settingsHandler}>
-          <Settings aria-hidden="true" size={18} />
-          <span className="sr-only">Settings</span>
-        </button>
+        <Tooltip content="Settings">
+          <button className="note-menu-bar-button" onClick={settingsHandler} aria-label="Settings">
+            <Settings aria-hidden="true" size={18} />
+            <span className="sr-only">Settings</span>
+          </button>
+        </Tooltip>
       </nav>
     </section>
   );

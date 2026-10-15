@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { Group, Panel, Separator } from 'react-resizable-panels';
+import { Theme } from '@radix-ui/themes';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 
@@ -11,25 +12,18 @@ import { NoteList } from '@/features/notes/NoteList';
 import { SettingsModal } from '@/features/settings/SettingsModal';
 import { Folder } from '@/utils/enums';
 import { getWebsiteTitle, determineAppClass, getActiveCategory, getDayJsLocale } from '@/utils/helpers';
-import { useAuthStore, useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
 
 dayjs.extend(localizedFormat);
 dayjs.locale(getDayJsLocale(navigator.language));
 
 export const App: React.FC = () => {
-  // Auth Store
-  const { loading, login } = useAuthStore();
-
   // App Stores
   const { darkTheme, sidebarVisible } = useSettingsStore();
   const { activeFolder, activeCategoryId } = useNotesStore();
   const { categories, swapCategories } = useCategoriesStore();
 
   const activeCategory = getActiveCategory(categories, activeCategoryId);
-
-  useEffect(() => {
-    login();
-  }, [login]);
 
   const onDragEnd = (result: DropResult) => {
     const { destination, source } = result;
@@ -43,20 +37,8 @@ export const App: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="la-ball-beat">
-          <div />
-          <div />
-          <div />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <>
+    <Theme appearance={darkTheme ? 'dark' : 'light'}>
       <meta charSet="utf-8" />
       <title>{getWebsiteTitle(activeFolder, activeCategory)}</title>
       <link rel="canonical" href="https://takenote.dev" />
@@ -84,6 +66,6 @@ export const App: React.FC = () => {
         <KeyboardShortcuts />
         <SettingsModal />
       </div>
-    </>
+    </Theme>
   );
 };
