@@ -19,7 +19,7 @@
 
     /* Path Aliases */
     "paths": {
-      "@/*": ["./src/client/*"],
+      "@/*": ["./src/*"],
       "@resources/*": ["./src/resources/*"]
     }
   },
