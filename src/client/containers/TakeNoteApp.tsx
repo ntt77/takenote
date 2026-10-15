@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { DragDropContext, DropResult } from '@hello-pangea/dnd'
-import SplitPane from 'react-split-pane'
+import { Group, Panel, Separator } from 'react-resizable-panels'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 
@@ -11,12 +11,12 @@ import { NoteEditor } from '@/containers/NoteEditor'
 import { NoteList } from '@/containers/NoteList'
 import { SettingsModal } from '@/containers/SettingsModal'
 import { TempStateProvider } from '@/contexts/TempStateContext'
+import { Folder } from '@/utils/enums'
 import {
   getWebsiteTitle,
   determineAppClass,
   getActiveCategory,
   getDayJsLocale,
-  getNoteBarConf,
 } from '@/utils/helpers'
 import { loadCategories, swapCategories } from '@/slices/category'
 import { loadNotes } from '@/slices/note'
@@ -95,13 +95,30 @@ export const TakeNoteApp: React.FC = () => {
       <TempStateProvider>
         <div className={determineAppClass(darkTheme, sidebarVisible, activeFolder)}>
           <DragDropContext onDragEnd={onDragEnd}>
-            <SplitPane split="vertical" minSize={150} maxSize={500} defaultSize={240}>
-              <AppSidebar />
-              <SplitPane split="vertical" {...getNoteBarConf(activeFolder)}>
-                <NoteList />
+            <Group
+              orientation="horizontal"
+              id={
+                activeFolder === Folder.SCRATCHPAD
+                  ? 'takenote-scratchpad-layout'
+                  : 'takenote-main-layout'
+              }
+            >
+              <Panel id="sidebar" defaultSize={240} minSize={150} maxSize={500}>
+                <AppSidebar />
+              </Panel>
+              <Separator className="Resizer vertical" />
+              {activeFolder !== Folder.SCRATCHPAD && (
+                <>
+                  <Panel id="notes" defaultSize={330} minSize={200} maxSize={600}>
+                    <NoteList />
+                  </Panel>
+                  <Separator className="Resizer vertical" />
+                </>
+              )}
+              <Panel id="editor" minSize={300}>
                 <NoteEditor />
-              </SplitPane>
-            </SplitPane>
+              </Panel>
+            </Group>
           </DragDropContext>
           <KeyboardShortcuts />
           <SettingsModal />

@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux'
 
 import { Folder } from '@/utils/enums'
@@ -58,14 +59,21 @@ export const PreviewEditor: React.FC<PreviewEditorProps> = ({ noteText, directio
   }
 
   return (
-    <ReactMarkdown
-      plugins={[uuidPlugin]}
-      renderers={{
-        uuid: ({ value }: { value: string }) => returnNoteLink(value),
-      }}
-      linkTarget="_blank"
-      className={`previewer previewer_direction-${directionText}`}
-      source={noteText}
-    />
+    <div className={`previewer previewer_direction-${directionText}`}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, uuidPlugin]}
+        components={{
+          // @ts-expect-error custom hast element from uuidPlugin
+          uuid: ({ value }: { value?: string }) => (value ? returnNoteLink(value) : null),
+          a: ({ href, children }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {noteText}
+      </ReactMarkdown>
+    </div>
   )
 }

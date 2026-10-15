@@ -52,20 +52,19 @@ type GetLocalStorage = (
   errorMessage?: string
 ) => (resolve: PromiseCallback, reject: PromiseCallback) => void
 
-const getLocalStorage: GetLocalStorage = (key, errorMessage = 'Something went wrong') => (
-  resolve,
-  reject
-) => {
-  const data = localStorage.getItem(key)
+const getLocalStorage: GetLocalStorage =
+  (key, errorMessage = 'Something went wrong') =>
+  (resolve, reject) => {
+    const data = localStorage.getItem(key)
 
-  if (data) {
-    resolve(JSON.parse(data))
-  } else {
-    reject({
-      message: errorMessage,
-    })
+    if (data) {
+      resolve(JSON.parse(data))
+    } else {
+      reject({
+        message: errorMessage,
+      })
+    }
   }
-}
 
 const getUserNotes = () => (resolve: PromiseCallback, reject: PromiseCallback) => {
   const notes: any = localStorage.getItem('notes')

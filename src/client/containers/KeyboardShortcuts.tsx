@@ -25,9 +25,8 @@ export const KeyboardShortcuts: React.FC = () => {
   // ===========================================================================
 
   const { categories } = useSelector(getCategories)
-  const { activeCategoryId, activeFolder, activeNoteId, notes, selectedNotesIds } = useSelector(
-    getNotes
-  )
+  const { activeCategoryId, activeFolder, activeNoteId, notes, selectedNotesIds } =
+    useSelector(getNotes)
   const { darkTheme, previewMarkdown } = useSelector(getSettings)
 
   const activeNote = getActiveNote(notes, activeNoteId)

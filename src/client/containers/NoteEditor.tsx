@@ -1,8 +1,17 @@
 import dayjs from 'dayjs'
-import React from 'react'
-import { Controlled as CodeMirror } from 'react-codemirror2'
+import React, { useMemo } from 'react'
+import CodeMirror from '@uiw/react-codemirror'
+import { markdown } from '@codemirror/lang-markdown'
+import {
+  EditorView,
+  scrollPastEnd,
+  MatchDecorator,
+  Decoration,
+  ViewPlugin,
+  DecorationSet,
+  ViewUpdate,
+} from '@codemirror/view'
 import { useDispatch, useSelector } from 'react-redux'
-import { Editor } from 'codemirror'
 
 import { getActiveNote } from '@/utils/helpers'
 import { updateNote } from '@/slices/note'
@@ -12,11 +21,25 @@ import { EmptyEditor } from '@/components/Editor/EmptyEditor'
 import { PreviewEditor } from '@/components/Editor/PreviewEditor'
 import { getNotes, getSettings } from '@/selectors'
 
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/base16-light.css'
-import 'codemirror/mode/gfm/gfm'
-import 'codemirror/addon/selection/active-line'
-import 'codemirror/addon/scroll/scrollpastend'
+const linkMatcher = new MatchDecorator({
+  regexp: /\{\{[a-z0-9]{6}\}\}/g,
+  decoration: () => Decoration.mark({ class: 'cm-notelink' }),
+})
+
+const noteLinkPlugin = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet
+    constructor(view: EditorView) {
+      this.decorations = linkMatcher.createDeco(view)
+    }
+    update(update: ViewUpdate) {
+      this.decorations = linkMatcher.updateDeco(update, this.decorations)
+    }
+  },
+  {
+    decorations: (instance) => instance.decorations,
+  }
+)
 
 export const NoteEditor: React.FC = () => {
   // ===========================================================================
@@ -24,7 +47,7 @@ export const NoteEditor: React.FC = () => {
   // ===========================================================================
 
   const { activeNoteId, loading, notes } = useSelector(getNotes)
-  const { codeMirrorOptions, previewMarkdown } = useSelector(getSettings)
+  const { codeMirrorOptions, previewMarkdown, darkTheme } = useSelector(getSettings)
 
   const activeNote = getActiveNote(notes, activeNoteId)
 
@@ -38,24 +61,13 @@ export const NoteEditor: React.FC = () => {
     dispatch(updateNote(note))
   }
 
-  const setEditorOverlay = (editor: Editor) => {
-    const query = /\{\{[^}]*}}/g
-    editor.addOverlay({
-      token: function (stream: any) {
-        query.lastIndex = stream.pos
-        const match = query.exec(stream.string)
-        if (match && match.index == stream.pos) {
-          stream.pos += match[0].length || 1
-
-          return 'notelink'
-        } else if (match) {
-          stream.pos = match.index
-        } else {
-          stream.skipToEnd()
-        }
-      },
-    })
-  }
+  const extensions = useMemo(() => {
+    const list = [markdown(), EditorView.lineWrapping, noteLinkPlugin]
+    if (codeMirrorOptions.scrollPastEnd) {
+      list.push(scrollPastEnd())
+    }
+    return list
+  }, [codeMirrorOptions.scrollPastEnd])
 
   const renderEditor = () => {
     if (loading) {
@@ -77,39 +89,23 @@ export const NoteEditor: React.FC = () => {
         data-testid="codemirror-editor"
         className="editor mousetrap"
         value={activeNote.text}
-        options={codeMirrorOptions}
-        editorDidMount={(editor) => {
-          setTimeout(() => {
-            editor.focus()
-          }, 0)
-          editor.setCursor(0)
-          setEditorOverlay(editor)
+        height="100%"
+        theme={darkTheme ? 'dark' : 'light'}
+        basicSetup={{
+          lineNumbers: !!codeMirrorOptions.lineNumbers,
+          highlightActiveLine: !!codeMirrorOptions.styleActiveLine,
+          foldGutter: false,
+          dropCursor: false,
+          allowMultipleSelections: true,
+          indentOnInput: true,
         }}
-        onBeforeChange={(editor, data, value) => {
+        extensions={extensions}
+        onChange={(value) => {
           _updateNote({
             id: activeNote.id,
             text: value,
             created: activeNote.created,
             lastUpdated: dayjs().format(),
-          })
-        }}
-        onChange={(editor, data, value) => {
-          if (!value) {
-            editor.focus()
-          }
-        }}
-        onPaste={(editor, event: any) => {
-          // Get around pasting issue
-          // https://github.com/scniro/react-codemirror2/issues/77
-          if (!event.clipboardData || !event.clipboardData.items || !event.clipboardData.items[0])
-            return
-          event.clipboardData.items[0].getAsString((pasted: any) => {
-            if (editor.getSelection() !== pasted) return
-            const { anchor, head } = editor.listSelections()[0]
-            editor.setCursor({
-              line: Math.max(anchor.line, head.line),
-              ch: Math.max(anchor.ch, head.ch),
-            })
           })
         }}
       />

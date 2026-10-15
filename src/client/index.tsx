@@ -7,7 +7,7 @@ import { App } from '@/containers/App'
 import rootSaga from '@/sagas'
 import rootReducer from '@/slices'
 
-import '@/styles/index.scss'
+import '@/styles/index.css'
 
 const sagaMiddleware = createSagaMiddleware()
 const store = configureStore({
@@ -26,4 +26,3 @@ root.render(
     <App />
   </Provider>
 )
-

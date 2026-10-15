@@ -1,4 +1,4 @@
-import visit from 'unist-util-visit'
+import { visit } from 'unist-util-visit'
 
 // This regexp will match any string starting with a # followed by 6 alphanumeric chars
 // #k5b4m3, #j4n7k3, etc (substring of a note's UUID)
@@ -42,6 +42,12 @@ export const uuidPlugin = () => {
         definition.push({
           type,
           value,
+          data: {
+            hName: 'uuid',
+            hProperties: {
+              value,
+            },
+          },
         })
 
         lastIndex = match.index + value.length
@@ -52,11 +58,8 @@ export const uuidPlugin = () => {
         definition.push(text)
       }
 
-      if (!parent) return
-      const last = parent.children.slice(position + 1)
-      parent.children = parent.children.slice(0, position)
-      parent.children = parent.children.concat(definition)
-      parent.children = parent.children.concat(last)
+      if (!parent || typeof position !== 'number') return
+      parent.children.splice(position, 1, ...definition)
     })
   }
 

@@ -10,4 +10,3 @@ export interface TabPanelProps {
 export const TabPanel: React.FC<TabPanelProps> = ({ children }) => {
   return <section>{children}</section>
 }
-

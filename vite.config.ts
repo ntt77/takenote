@@ -4,10 +4,6 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  define: {
-    'process.cwd': '(() => "/")',
-    'process.env': {},
-  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src/client'),
@@ -41,14 +37,6 @@ export default defineConfig({
           }
         },
       },
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler',
-        silenceDeprecations: ['import', 'global-builtin', 'color-functions'],
-      } as any,
     },
   },
 })

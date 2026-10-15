@@ -11,129 +11,149 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 - [x] **Local-First Foundation:** Converted data persistence to direct browser `localStorage`.
 - [x] **Vercel Readiness:** Configured `vercel.json` for seamless SPA deployments.
 - [x] **Phase 1: React 19 Core & Deprecations (Completed)**
-- [ ] **Phase 2: Modern Layout, Vanilla CSS & CodeMirror 6 Editor**
+- [x] **Phase 2: Modern Layout, Vanilla CSS & CodeMirror 6 Editor (Completed)**
 - [ ] **Phase 3: State Management Overhaul (Redux $\rightarrow$ Zustand)**
-- [ ] **Phase 4: Routing & Polish (Wouter)**
+- [x] **Phase 4: Routing & Polish (Completed)**
 - [ ] **Phase 5: Optional Enhancements (Deferred / On-demand)**
 
 ---
 
-## Phase 1: React 19 Core & Critical Deprecations
+## Phase 1: React 19 Core & Critical Deprecations (Completed)
 
 ### 1.1 React 19 & Root Migration
-* **Target Packages:** `react@^19.0.0`, `react-dom@^19.0.0`, `@types/react@^19.0.0`, `@types/react-dom@^19.0.0`.
-* **Action in `src/client/index.tsx`:** Replace legacy `render(...)` with modern `createRoot(...)`:
+
+- **Status:** ✅ Completed
+- **Target Packages:** `react@^19.0.0`, `react-dom@^19.0.0`, `@types/react@^19.0.0`, `@types/react-dom@^19.0.0`.
+- **Action in `src/client/index.tsx`:** Replace legacy `render(...)` with modern `createRoot(...)`:
+
   ```tsx
   import { createRoot } from 'react-dom/client'
-  
+
   const container = document.getElementById('root')!
   const root = createRoot(container)
   root.render(<App />)
   ```
 
 ### 1.2 Drag & Drop Replacement
-* **Current:** `react-beautiful-dnd` (Deprecated by Atlassian in 2022).
-* **Target:** **`@hello-pangea/dnd`** (v18).
-* **Rationale:** Exact 1:1 drop-in replacement with active React 19 support and no breaking API changes.
+
+- **Status:** ✅ Completed
+- **Current:** `react-beautiful-dnd` (Deprecated by Atlassian in 2022).
+- **Target:** **`@hello-pangea/dnd`** (v18).
+- **Rationale:** Exact 1:1 drop-in replacement with active React 19 support and no breaking API changes.
 
 ### 1.3 Icon Library Upgrade
-* **Current:** `react-feather` (Unmaintained since 2020).
-* **Target:** **`@boxicons/react`**.
-* **Rationale:** Official React component package for Boxicons (https://boxicons.com), providing modern SVG icons with full React compatibility and rich icon variations (regular, solid, logos).
+
+- **Status:** ✅ Completed
+- **Current:** `react-feather` (Unmaintained since 2020).
+- **Target:** **`@boxicons/react`**.
+- **Rationale:** Official React component package for Boxicons (https://boxicons.com), providing modern SVG icons with full React compatibility and rich icon variations (regular, solid, logos).
 
 ### 1.4 Native Browser APIs
-* **Replace `uuid`:** Use native `crypto.randomUUID()` (0 bytes added to bundle).
-* **Replace `clipboard-polyfill`:** Use native `navigator.clipboard.writeText()`.
-* **Remove `react-helmet-async`:** React 19 natively supports `<title>` and `<meta>` tags inside components.
+
+- **Status:** ✅ Completed
+- **Replace `uuid`:** Use native `crypto.randomUUID()` (0 bytes added to bundle).
+- **Replace `clipboard-polyfill`:** Use native `navigator.clipboard.writeText()`.
+- **Remove `react-helmet-async`:** React 19 natively supports `<title>` and `<meta>` tags inside components.
 
 ---
 
-## Phase 2: Modern Layout, Vanilla CSS & Editor Overhaul
+## Phase 2: Modern Layout, Vanilla CSS & Editor Overhaul (Completed)
 
 ### 2.1 Resizable Panels
-* **Current:** `react-split-pane` (Abandoned in 2019).
-* **Target:** **`react-resizable-panels`** (by Brian Vaughn, React core team).
-* **Benefits:**
-  * Native React 19 support.
-  * Mobile touch support and smooth animations.
-  * Built-in `autoSaveId` to automatically persist pane sizes in `localStorage`.
+
+- **Status:** ✅ Completed
+- **Current:** `react-split-pane` (Abandoned in 2019).
+- **Target:** **`react-resizable-panels`** (by Brian Vaughn, React core team).
+- **Benefits:**
+  - Native React 19 support.
+  - Mobile touch support and smooth animations.
+  - Built-in `autoSaveId` to automatically persist pane sizes in `localStorage`.
 
 ### 2.2 Editor: CodeMirror 6 Upgrade
-* **Current:** CodeMirror 5 (`codemirror`, `react-codemirror2`).
-* **Target:** **CodeMirror 6** via **`@uiw/react-codemirror`**.
-* **Benefits:**
-  * Rewritten from scratch in TypeScript.
-  * Modular (only bundles the extensions and syntax rules you use).
-  * High performance on long markdown files and mobile devices.
+
+- **Status:** ✅ Completed
+- **Current:** CodeMirror 5 (`codemirror`, `react-codemirror2`).
+- **Target:** **CodeMirror 6** via **`@uiw/react-codemirror`**.
+- **Benefits:**
+  - Rewritten from scratch in TypeScript.
+  - Modular (only bundles the extensions and syntax rules you use).
+  - High performance on long markdown files and mobile devices.
 
 ### 2.3 Markdown Rendering
-* **Current:** `react-markdown` v4 (2019).
-* **Target:** **`react-markdown` v9 + `remark-gfm`**.
-* **Benefits:** Modern Micromark parser, GitHub Flavored Markdown (tables, task lists, strikethrough), and full type safety.
+
+- **Status:** ✅ Completed
+- **Current:** `react-markdown` v4 (2019).
+- **Target:** **`react-markdown` v10 + `remark-gfm`**.
+- **Benefits:** Modern Micromark parser, GitHub Flavored Markdown (tables, task lists, strikethrough), and full type safety.
 
 ### 2.4 Styling Modernization: SCSS $\rightarrow$ Vanilla CSS
-* **Current:** SASS/SCSS (`sass@^1.83.0`, 19 partials, compile-time `$variables`, deprecated `@import`).
-* **Target:** **Native Vanilla CSS** (CSS Custom Properties `--var` + Native CSS Nesting).
-* **Benefits:**
-  * Eliminates the heavy `sass` compiler dependency.
-  * Shaves ~3.8 seconds off build time (plain CSS is processed instantly with zero build overhead).
-  * Replaces 6.3KB duplicated `_dark.scss` with clean, runtime CSS custom properties on `:root` and `.dark`.
-  * Future-proof and native (no preprocessor quirks or deprecated `@import` syntax).
+
+- **Status:** ✅ Completed
+- **Current:** SASS/SCSS (`sass@^1.83.0`, 19 partials, compile-time `$variables`, deprecated `@import`).
+- **Target:** **Native Vanilla CSS** (CSS Custom Properties `--var` + Native CSS Nesting).
+- **Benefits:**
+  - Eliminates the heavy `sass` compiler dependency.
+  - Shaves ~3.8 seconds off build time (plain CSS is processed instantly with zero build overhead).
+  - Replaces 6.3KB duplicated `_dark.scss` with clean, runtime CSS custom properties on `:root` and `.dark`.
+  - Future-proof and native (no preprocessor quirks or deprecated `@import` syntax).
 
 ---
 
 ## Phase 3: State Management Overhaul (Redux $\rightarrow$ Zustand)
 
 ### 3.1 Eliminate Redux & Redux-Saga Boilerplate
-* **Current:** `@reduxjs/toolkit`, `react-redux`, `redux`, `redux-saga` (~15KB+ gzipped).
-* **Target:** **`zustand`** (v5, ~1.2KB).
-* **Benefits:**
-  * Eliminates action creators, reducers, slice wrappers, and generator functions.
-  * Simple, readable hooks:
+
+- **Current:** `@reduxjs/toolkit`, `react-redux`, `redux`, `redux-saga` (~15KB+ gzipped).
+- **Target:** **`zustand`** (v5, ~1.2KB).
+- **Benefits:**
+  - Eliminates action creators, reducers, slice wrappers, and generator functions.
+  - Simple, readable hooks:
     ```tsx
     const { notes, activeNoteId, updateNote } = useNotesStore()
     ```
-  * Built-in `persist` middleware handles `localStorage` automatically with schema migration support.
+  - Built-in `persist` middleware handles `localStorage` automatically with schema migration support.
 
 ---
 
 ## Phase 4: Single-Screen Architecture & Zero-Routing (Completed)
 
 ### 4.1 Landing Page & Router Elimination
-* **Status:** ✅ **Completed**
-* **Previous:** `react-router-dom` v5.3 (2019, ~45KB), `LandingPage.tsx`, `react-device-detect`, and external `history` package.
-* **Result:** **Zero Router (0 KB Overhead)**
-* **Benefits:**
-  * TakeNote is a single-screen, local-first markdown note-taking app. There are no secondary pages.
-  * Direct load on `localhost:3000/` straight into `<TakeNoteApp />`.
-  * Removed `react-router-dom`, `@types/react-router`, `@types/react-router-dom`, `react-device-detect`, and `history` (13 packages uninstalled).
-  * Completely eliminated unnecessary routing layer, reducing bundle size and speeding up hydration.
+
+- **Status:** ✅ **Completed**
+- **Previous:** `react-router-dom` v5.3 (2019, ~45KB), `LandingPage.tsx`, `react-device-detect`, and external `history` package.
+- **Result:** **Zero Router (0 KB Overhead)**
+- **Benefits:**
+  - TakeNote is a single-screen, local-first markdown note-taking app. There are no secondary pages.
+  - Direct load on `localhost:3000/` straight into `<TakeNoteApp />`.
+  - Removed `react-router-dom`, `@types/react-router`, `@types/react-router-dom`, `react-device-detect`, and `history` (13 packages uninstalled).
+  - Completely eliminated unnecessary routing layer, reducing bundle size and speeding up hydration.
 
 ---
 
 ## Phase 5: Optional Enhancements (Deferred / On-demand)
 
 ### 5.1 Markdown Formatting Toolbar & Inline Styling
-* **Status:** Optional (evaluate after core modernization phases).
-* **Concept:** Formatting toolbar similar to GitHub Issue comment editor or StackOverflow markdown input.
-* **Component:** `<EditorToolbar />` with intuitive formatting action buttons powered by `@boxicons/react`:
-  * `<BxBold />`, `<BxItalic />`, `<BxStrikethrough />`, `<BxHeading />`, `<BxCode />`, `<BxCodeBlock />`, `<BxListUl />`, `<BxListOl />`, `<BxCheckboxChecked />`, `<BxQuoteLeft />`, `<BxLink />`, `<BxTable />`.
-* **Behavior:** Uses CodeMirror 6 transactions (`view.dispatch()`) to wrap or insert markdown syntax around the current selection.
-* **Inline Styling:** Custom CodeMirror 6 CSS theme for visually enhanced editing (larger headings, bold font weight, styled code block background directly inside the editor).
-* **Benefits:** Retains 100% clean Markdown storage (`notes.text`) with minimal `localStorage` footprint, intuitive for non-technical users while preserving keyboard speed for developers.
+
+- **Status:** Optional (evaluate after core modernization phases).
+- **Concept:** Formatting toolbar similar to GitHub Issue comment editor or StackOverflow markdown input.
+- **Component:** `<EditorToolbar />` with intuitive formatting action buttons powered by `@boxicons/react`:
+  - `<BxBold />`, `<BxItalic />`, `<BxStrikethrough />`, `<BxHeading />`, `<BxCode />`, `<BxCodeBlock />`, `<BxListUl />`, `<BxListOl />`, `<BxCheckboxChecked />`, `<BxQuoteLeft />`, `<BxLink />`, `<BxTable />`.
+- **Behavior:** Uses CodeMirror 6 transactions (`view.dispatch()`) to wrap or insert markdown syntax around the current selection.
+- **Inline Styling:** Custom CodeMirror 6 CSS theme for visually enhanced editing (larger headings, bold font weight, styled code block background directly inside the editor).
+- **Benefits:** Retains 100% clean Markdown storage (`notes.text`) with minimal `localStorage` footprint, intuitive for non-technical users while preserving keyboard speed for developers.
 
 ---
 
 ## Dependency Impact Summary
 
-| Metric | Current State | After Modernization |
-| :--- | :--- | :--- |
-| **React Version** | 18.3.1 | **19.3.0** |
-| **Bundler** | Vite 8 (Rolldown) | **Vite 8 (Rolldown)** |
-| **State Library** | Redux + Saga (15KB+) | **Zustand (1.2KB)** |
-| **Routing** | react-router-dom v5 (45KB) | **None / Zero Router (0 KB)** |
-| **Editor** | CodeMirror 5 (Legacy) | **CodeMirror 6 (Modular)** |
-| **Styling** | SCSS (`sass` compiler) | **Vanilla CSS (CSS Variables + Native Nesting)** |
-| **Icons** | react-feather (Frozen) | **@boxicons/react (Boxicons)** |
-| **Panels** | react-split-pane (2019) | **react-resizable-panels** |
-| **Production Bundle** | ~1.46 MB | **< 600 KB** |
+| Metric                | Current State              | After Modernization                              |
+| :-------------------- | :------------------------- | :----------------------------------------------- |
+| **React Version**     | 18.3.1                     | **19.3.0**                                       |
+| **Bundler**           | Vite 8 (Rolldown)          | **Vite 8 (Rolldown)**                            |
+| **State Library**     | Redux + Saga (15KB+)       | **Zustand (1.2KB)**                              |
+| **Routing**           | react-router-dom v5 (45KB) | **None / Zero Router (0 KB)**                    |
+| **Editor**            | CodeMirror 5 (Legacy)      | **CodeMirror 6 (Modular)**                       |
+| **Styling**           | SCSS (`sass` compiler)     | **Vanilla CSS (CSS Variables + Native Nesting)** |
+| **Icons**             | react-feather (Frozen)     | **@boxicons/react (Boxicons)**                   |
+| **Panels**            | react-split-pane (2019)    | **react-resizable-panels**                       |
+| **Production Bundle** | ~1.46 MB                   | **< 600 KB**                                     |

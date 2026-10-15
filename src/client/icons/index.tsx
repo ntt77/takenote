@@ -32,22 +32,9 @@ export interface IconProps extends Omit<BoxIconProps, 'size'> {
   color?: string
 }
 
-export type Icon = React.ForwardRefExoticComponent<
-  IconProps & React.RefAttributes<SVGSVGElement>
->
+export type Icon = React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>
 
-const VALID_SIZES: IconSize[] = [
-  'xs',
-  'sm',
-  'base',
-  'md',
-  'lg',
-  'xl',
-  '2xl',
-  '3xl',
-  '4xl',
-  '5xl',
-]
+const VALID_SIZES: IconSize[] = ['xs', 'sm', 'base', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl']
 
 export function createIcon(BoxIconComponent: React.ComponentType<any>): Icon {
   const WrappedIcon = forwardRef<SVGSVGElement, IconProps>(

@@ -1,15 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  X,
-  Command,
-  Settings,
-  Archive,
-  Edit2,
-  Download,
-  DownloadCloud,
-  UploadCloud,
-} from '@/icons'
+import { X, Command, Settings, Archive, Edit2, Download, DownloadCloud, UploadCloud } from '@/icons'
 
 import {
   toggleSettingsModal,
@@ -41,9 +32,8 @@ export const SettingsModal: React.FC = () => {
   // Selectors
   // ===========================================================================
 
-  const { codeMirrorOptions, isOpen, previewMarkdown, darkTheme, notesSortKey } = useSelector(
-    getSettings
-  )
+  const { codeMirrorOptions, isOpen, previewMarkdown, darkTheme, notesSortKey } =
+    useSelector(getSettings)
   const { currentUser } = useSelector(getAuth)
   const { notes, activeFolder, activeCategoryId } = useSelector(getNotes)
   const { categories } = useSelector(getCategories)
