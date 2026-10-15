@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { MoreHorizontal, Book, Star, Folder as FolderIcon } from '@/icons'
 
 import { TestID } from '@resources/TestID'
@@ -9,41 +8,38 @@ import { SearchBar } from '@/components/NoteList/SearchBar'
 import { ContextMenu } from '@/containers/ContextMenu'
 import { getNoteTitle, shouldOpenContextMenu, debounceEvent, isDraftNote } from '@/utils/helpers'
 import { useKey } from '@/utils/hooks'
-import {
-  permanentlyEmptyTrash,
-  pruneNotes,
-  updateActiveNote,
-  searchNotes,
-  updateSelectedNotes,
-} from '@/slices/note'
 import { NoteItem, ReactDragEvent, ReactMouseEvent } from '@/types'
-import { getNotes, getSettings, getCategories } from '@/selectors'
 import { getNotesSorter } from '@/utils/notesSortStrategies'
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 export const NoteList: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { notesSortKey } = useSelector(getSettings)
-  const { activeCategoryId, activeFolder, selectedNotesIds, notes, searchValue } =
-    useSelector(getNotes)
-  const { categories } = useSelector(getCategories)
-
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
+  const { notesSortKey } = useSettingsStore()
+  const {
+    activeCategoryId,
+    activeFolder,
+    selectedNotesIds,
+    notes,
+    searchValue,
+    updateSelectedNotes,
+    permanentlyEmptyTrash,
+    pruneNotes,
+    updateActiveNote,
+    searchNotes,
+  } = useNotesStore()
+  const { categories } = useCategoriesStore()
 
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateSelectedNotes({ noteId, multiSelect }))
-  const _permanentlyEmptyTrash = () => dispatch(permanentlyEmptyTrash())
-  const _pruneNotes = () => dispatch(pruneNotes())
+    updateSelectedNotes({ noteId, multiSelect })
+  const _permanentlyEmptyTrash = () => permanentlyEmptyTrash()
+  const _pruneNotes = () => pruneNotes()
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
+    updateActiveNote({ noteId, multiSelect })
   const _searchNotes = debounceEvent(
-    (searchValue: string) => dispatch(searchNotes(searchValue)),
+    (val: string) => searchNotes(val),
     100
   )
 
@@ -92,12 +88,9 @@ export const NoteList: React.FC = () => {
   const handleNoteOptionsClick = (event: ReactMouseEvent, noteId: string = '') => {
     const clicked = event.target
 
-    // Make sure we aren't getting any null values. Any element clicked should be a sub-class of element
     if (!clicked) return
 
-    // Ensure the clicked target is supposed to open the context menu
     if (shouldOpenContextMenu(clicked as Element)) {
-      // note: don't check for MouseEvent because Cypress MouseEvent !== Window.MouseEvent
       if ('pageX' in event && 'pageY' in event) {
         setOptionsPosition({ x: event.pageX, y: event.pageY })
       }
@@ -118,14 +111,11 @@ export const NoteList: React.FC = () => {
     const clicked = event.target
     const RIGHT_CLICK = 2
 
-    // Make sure we aren't getting any null values .. any element clicked should be a sub-class of element
     if (!clicked) return
 
-    // FIXME: This feels hacky
     if (event.ctrlKey) return
 
-    // Make sure we are not right clicking on the menu
-    if (optionsId && event.button == RIGHT_CLICK) return
+    if (optionsId && event.button === RIGHT_CLICK) return
 
     if ('clientX' in event && 'clientY' in event) {
       setOptionsPosition({ x: event.clientX, y: event.clientY })
@@ -226,7 +216,6 @@ export const NoteList: React.FC = () => {
                 </div>
                 {!isDraftNote(note) ? (
                   <div
-                    // TODO: make testID based off of index when we add that to a NoteItem object
                     data-testid={TestID.NOTE_OPTIONS_DIV + index}
                     className={optionsId === note.id ? 'note-options selected' : 'note-options'}
                     onClick={(event) => handleNoteOptionsClick(event, note.id)}

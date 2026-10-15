@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React from 'react'
 import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import dayjs from 'dayjs'
@@ -18,33 +17,21 @@ import {
   getActiveCategory,
   getDayJsLocale,
 } from '@/utils/helpers'
-import { loadCategories, swapCategories } from '@/slices/category'
-import { loadNotes } from '@/slices/note'
-import { loadSettings } from '@/slices/settings'
-import { getSettings, getNotes, getCategories } from '@/selectors'
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 dayjs.extend(localizedFormat)
 dayjs.locale(getDayJsLocale(navigator.language))
 
 export const TakeNoteApp: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { darkTheme, sidebarVisible } = useSelector(getSettings)
-  const { activeFolder, activeCategoryId, notes, loading: notesLoading } = useSelector(getNotes)
-  const { categories, loading: categoriesLoading } = useSelector(getCategories)
+  const { darkTheme, sidebarVisible } = useSettingsStore()
+  const { activeFolder, activeCategoryId } = useNotesStore()
+  const { categories, swapCategories } = useCategoriesStore()
 
   const activeCategory = getActiveCategory(categories, activeCategoryId)
-
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _swapCategories = (categoryId: number, destinationId: number) =>
-    dispatch(swapCategories({ categoryId, destinationId }))
 
   // ===========================================================================
   // Handlers
@@ -58,33 +45,9 @@ export const TakeNoteApp: React.FC = () => {
     if (destination.droppableId === source.droppableId && destination.index === source.index) return
 
     if (result.type === 'CATEGORY') {
-      _swapCategories(source.index, destination.index)
+      swapCategories({ categoryId: source.index, destinationId: destination.index })
     }
   }
-
-  // ===========================================================================
-  // Hooks
-  // ===========================================================================
-
-  useEffect(() => {
-    dispatch(loadNotes())
-    dispatch(loadCategories())
-    dispatch(loadSettings())
-  }, [dispatch])
-
-  // Auto-save notes to localStorage
-  useEffect(() => {
-    if (!notesLoading) {
-      localStorage.setItem('notes', JSON.stringify(notes))
-    }
-  }, [notes, notesLoading])
-
-  // Auto-save categories to localStorage
-  useEffect(() => {
-    if (!categoriesLoading) {
-      localStorage.setItem('categories', JSON.stringify(categories))
-    }
-  }, [categories, categoriesLoading])
 
   return (
     <>

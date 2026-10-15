@@ -1,25 +1,14 @@
 import React, { useContext } from 'react'
 import { ArrowUp, Download, Star, Trash, X, Edit2, Clipboard } from '@/icons'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { LabelText } from '@resources/LabelText'
 import { TestID } from '@resources/TestID'
 import { ContextMenuOption } from '@/components/NoteList/ContextMenuOption'
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
-import {
-  deleteNotes,
-  toggleFavoriteNotes,
-  toggleTrashNotes,
-  addCategoryToNote,
-  updateActiveNote,
-  swapFolder,
-  removeCategoryFromNotes,
-} from '@/slices/note'
-import { getCategories, getNotes } from '@/selectors'
 import { Folder, ContextMenuEnum } from '@/utils/enums'
 import { CategoryItem, NoteItem } from '@/types'
-import { setCategoryEdit, deleteCategory } from '@/slices/category'
 import { MenuUtilitiesContext } from '@/containers/ContextMenu'
+import { useCategoriesStore, useNotesStore } from '@/store'
 
 export interface ContextMenuOptionsProps {
   clickedItem: NoteItem | CategoryItem
@@ -40,17 +29,17 @@ interface CategoryOptionsProps {
 
 const CategoryOptions: React.FC<CategoryOptionsProps> = ({ clickedCategory }) => {
   // ===========================================================================
-  // Dispatch
+  // Stores
   // ===========================================================================
 
-  const dispatch = useDispatch()
+  const { deleteCategory, setCategoryEdit } = useCategoriesStore()
+  const { removeCategoryFromNotes, swapFolder } = useNotesStore()
 
-  const _deleteCategory = (categoryId: string) => dispatch(deleteCategory(categoryId))
-  const _removeCategoryFromNotes = (categoryId: string) =>
-    dispatch(removeCategoryFromNotes(categoryId))
-  const _swapFolder = (folder: Folder) => dispatch(swapFolder({ folder }))
+  const _deleteCategory = (categoryId: string) => deleteCategory(categoryId)
+  const _removeCategoryFromNotes = (categoryId: string) => removeCategoryFromNotes(categoryId)
+  const _swapFolder = (folder: Folder) => swapFolder({ folder })
   const _setCategoryEdit = (categoryId: string, tempName: string) =>
-    dispatch(setCategoryEdit({ id: categoryId, tempName }))
+    setCategoryEdit({ id: categoryId, tempName })
 
   // ===========================================================================
   // Context
@@ -97,30 +86,32 @@ interface NotesOptionsProps {
 
 const NotesOptions: React.FC<NotesOptionsProps> = ({ clickedNote }) => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { selectedNotesIds, notes } = useSelector(getNotes)
-  const { categories } = useSelector(getCategories)
+  const {
+    selectedNotesIds,
+    notes,
+    deleteNotes,
+    toggleTrashNotes,
+    toggleFavoriteNotes,
+    addCategoryToNote,
+    updateActiveNote,
+  } = useNotesStore()
+  const { categories } = useCategoriesStore()
 
   const selectedNotes = notes.filter((note) => selectedNotesIds.includes(note.id))
   const isSelectedNotesDiffFavor = Boolean(
     selectedNotes.find((note) => note.favorite) && selectedNotes.find((note) => !note.favorite)
   )
 
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _deleteNotes = (noteIds: string[]) => dispatch(deleteNotes(noteIds))
-  const _toggleTrashNotes = (noteId: string) => dispatch(toggleTrashNotes(noteId))
-  const _toggleFavoriteNotes = (noteId: string) => dispatch(toggleFavoriteNotes(noteId))
+  const _deleteNotes = (noteIds: string[]) => deleteNotes(noteIds)
+  const _toggleTrashNotes = (noteId: string) => toggleTrashNotes(noteId)
+  const _toggleFavoriteNotes = (noteId: string) => toggleFavoriteNotes(noteId)
   const _addCategoryToNote = (categoryId: string, noteId: string) =>
-    dispatch(addCategoryToNote({ categoryId, noteId }))
+    addCategoryToNote({ categoryId, noteId })
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
+    updateActiveNote({ noteId, multiSelect })
 
   // ===========================================================================
   // Handlers

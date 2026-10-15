@@ -1,14 +1,12 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect, useState, createContext } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { SelectCategory } from '@/components/NoteList/SelectCategory'
 import { ContextMenuOptions } from '@/containers/ContextMenuOptions'
-import { addCategoryToNote, updateActiveCategoryId, updateActiveNote } from '@/slices/note'
 import { NoteItem, CategoryItem } from '@/types'
-import { getNotes, getCategories, getSettings } from '@/selectors'
 import { ContextMenuEnum } from '@/utils/enums'
 import { isDraftNote } from '@/utils/helpers'
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 export const MenuUtilitiesContext = createContext({
   setOptionsId: (_id: string) => {},
@@ -34,10 +32,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   type,
 }) => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { darkTheme } = useSelector(getSettings)
+  const { darkTheme } = useSettingsStore()
 
   // ===========================================================================
   // State
@@ -69,11 +67,9 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   const getOptionsYPosition = (): number => {
     if (elementDimensions.offsetHeight || elementDimensions.offsetWidth) {
-      // get the max window frame
       const MaxY = window.innerHeight
       const optionsSize = elementDimensions.offsetHeight as number
 
-      // if window position - noteOptions position isn't bigger than options, flip it.
       return MaxY - optionsPosition.y > optionsSize
         ? optionsPosition.y
         : optionsPosition.y - optionsSize
@@ -125,24 +121,18 @@ interface NotesMenuProps {
 
 const NotesMenu: React.FC<NotesMenuProps> = ({ note, setOptionsId }) => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { categories } = useSelector(getCategories)
-  const { activeCategoryId } = useSelector(getNotes)
-
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
+  const { categories } = useCategoriesStore()
+  const { activeCategoryId, addCategoryToNote, updateActiveNote, updateActiveCategoryId } =
+    useNotesStore()
 
   const _addCategoryToNote = (categoryId: string, noteId: string) =>
-    dispatch(addCategoryToNote({ categoryId, noteId }))
+    addCategoryToNote({ categoryId, noteId })
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
-  const _updateActiveCategoryId = (categoryId: string) =>
-    dispatch(updateActiveCategoryId(categoryId))
+    updateActiveNote({ noteId, multiSelect })
+  const _updateActiveCategoryId = (categoryId: string) => updateActiveCategoryId(categoryId)
 
   return !isDraftNote(note) ? (
     <>

@@ -1,39 +1,32 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { Droppable } from '@hello-pangea/dnd'
 
 import { LabelText } from '@resources/LabelText'
 import { TestID } from '@resources/TestID'
 import { CategoryOption } from '@/containers/CategoryOption'
-import { getCategories } from '@/selectors'
 import { shouldOpenContextMenu } from '@/utils/helpers'
-import { ReactMouseEvent, ReactSubmitEvent, CategoryItem } from '@/types'
+import { ReactMouseEvent, ReactSubmitEvent } from '@/types'
 import { useTempState } from '@/contexts/TempStateContext'
-import { setCategoryEdit, updateCategory, addCategory } from '@/slices/category'
 import { AddCategoryForm } from '@/components/AppSidebar/AddCategoryForm'
 import { AddCategoryButton } from '@/components/AppSidebar/AddCategoryButton'
 import { CollapseCategoryListButton } from '@/components/AppSidebar/CollapseCategoryButton'
+import { useCategoriesStore } from '@/store'
 
 export const CategoryList: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
   const {
     categories,
     editingCategory: { id: editingCategoryId, tempName: tempCategoryName },
-  } = useSelector(getCategories)
-
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
+    setCategoryEdit,
+    updateCategory,
+    addCategory,
+  } = useCategoriesStore()
 
   const _setCategoryEdit = (categoryId: string, tempName: string) =>
-    dispatch(setCategoryEdit({ id: categoryId, tempName }))
-  const _updateCategory = (category: CategoryItem) => dispatch(updateCategory(category))
-  const _addCategory = (category: CategoryItem) => dispatch(addCategory(category))
+    setCategoryEdit({ id: categoryId, tempName })
 
   // ===========================================================================
   // Refs
@@ -70,7 +63,6 @@ export const CategoryList: React.FC = () => {
   ) => {
     const clicked = event.target
 
-    // Make sure we aren't getting any null values .. any element clicked should be a sub-class of element
     if (!clicked) return
 
     if (shouldOpenContextMenu(clicked as Element)) {
@@ -107,7 +99,7 @@ export const CategoryList: React.FC = () => {
     if (categories.find((cat) => cat.name === category.name) || category.name === '') {
       resetTempCategory()
     } else {
-      _updateCategory(category)
+      updateCategory(category)
       resetTempCategory()
     }
   }
@@ -120,7 +112,7 @@ export const CategoryList: React.FC = () => {
     if (categories.find((cat) => cat.name === category.name) || category.name === '') {
       resetTempCategory()
     } else {
-      _addCategory(category)
+      addCategory(category)
       resetTempCategory()
     }
   }

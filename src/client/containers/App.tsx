@@ -1,26 +1,14 @@
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { TakeNoteApp } from '@/containers/TakeNoteApp'
-import { getAuth } from '@/selectors'
-import { login } from '@/slices/auth'
+import { useAuthStore } from '@/store'
 
 export const App: React.FC = () => {
-  // ===========================================================================
-  // Selectors
-  // ===========================================================================
-
-  const { loading } = useSelector(getAuth)
-
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
+  const { loading, login } = useAuthStore()
 
   useEffect(() => {
-    dispatch(login())
-  }, [dispatch])
+    login()
+  }, [login])
 
   if (loading) {
     return (

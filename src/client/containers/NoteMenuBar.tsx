@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import {
   Eye,
   Edit,
@@ -13,24 +12,23 @@ import {
 } from '@/icons'
 
 import { TestID } from '@resources/TestID'
-import {
-  toggleSettingsModal,
-  togglePreviewMarkdown,
-  toggleDarkTheme,
-  updateCodeMirrorOption,
-} from '@/slices/settings'
-import { toggleFavoriteNotes, toggleTrashNotes } from '@/slices/note'
-import { getCategories, getNotes, getSettings } from '@/selectors'
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers'
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 export const NoteMenuBar = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { notes, activeNoteId } = useSelector(getNotes)
-  const { categories } = useSelector(getCategories)
-  const { darkTheme } = useSelector(getSettings)
+  const { notes, activeNoteId, toggleFavoriteNotes, toggleTrashNotes } = useNotesStore()
+  const { categories } = useCategoriesStore()
+  const {
+    darkTheme,
+    toggleSettingsModal,
+    togglePreviewMarkdown,
+    toggleDarkTheme,
+    updateCodeMirrorOption,
+  } = useSettingsStore()
 
   // ===========================================================================
   // Other
@@ -63,34 +61,23 @@ export const NoteMenuBar = () => {
   }, [uuidCopiedText])
 
   // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _togglePreviewMarkdown = () => dispatch(togglePreviewMarkdown())
-  const _toggleTrashNotes = (noteId: string) => dispatch(toggleTrashNotes(noteId))
-  const _toggleFavoriteNotes = (noteId: string) => dispatch(toggleFavoriteNotes(noteId))
-  const _toggleSettingsModal = () => dispatch(toggleSettingsModal())
-  const _toggleDarkTheme = () => dispatch(toggleDarkTheme())
-  const _updateCodeMirrorOption = (key: string, value: any) =>
-    dispatch(updateCodeMirrorOption({ key, value }))
-
-  // ===========================================================================
   // Handlers
   // ===========================================================================
 
   const downloadNotesHandler = () => downloadNotes([activeNote], categories)
-  const favoriteNoteHandler = () => _toggleFavoriteNotes(activeNoteId)
-  const trashNoteHandler = () => _toggleTrashNotes(activeNoteId)
-  const settingsHandler = () => _toggleSettingsModal()
+  const favoriteNoteHandler = () => toggleFavoriteNotes(activeNoteId)
+  const trashNoteHandler = () => toggleTrashNotes(activeNoteId)
+  const settingsHandler = () => toggleSettingsModal()
   const toggleDarkThemeHandler = () => {
-    _toggleDarkTheme()
-    _updateCodeMirrorOption('theme', darkTheme ? 'base16-light' : 'new-moon')
+    toggleDarkTheme()
+    updateCodeMirrorOption({
+      key: 'theme',
+      value: darkTheme ? 'base16-light' : 'new-moon',
+    })
   }
   const togglePreviewHandler = () => {
     togglePreviewIcon(!isToggled)
-    _togglePreviewMarkdown()
+    togglePreviewMarkdown()
   }
 
   return (

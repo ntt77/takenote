@@ -1,55 +1,50 @@
 import React from 'react'
 import { Plus } from '@/icons'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { LabelText } from '@resources/LabelText'
 import { TestID } from '@resources/TestID'
 import { ActionButton } from '@/components/AppSidebar/ActionButton'
 import { FolderOption } from '@/components/AppSidebar/FolderOption'
 import { ScratchpadOption } from '@/components/AppSidebar/ScratchpadOption'
-import { Folder, NotesSortKey } from '@/utils/enums'
+import { Folder } from '@/utils/enums'
 import { CategoryList } from '@/containers/CategoryList'
-import {
-  addNote,
-  swapFolder,
-  updateActiveNote,
-  assignFavoriteToNotes,
-  assignTrashToNotes,
-  updateSelectedNotes,
-  unassignTrashFromNotes,
-} from '@/slices/note'
-import { togglePreviewMarkdown } from '@/slices/settings'
-import { getSettings, getNotes } from '@/selectors'
 import { NoteItem } from '@/types'
 import { newNoteHandlerHelper, getActiveNote } from '@/utils/helpers'
+import { useNotesStore, useSettingsStore } from '@/store'
 
 export const AppSidebar: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { activeCategoryId, activeFolder, activeNoteId, notes } = useSelector(getNotes)
-  const { previewMarkdown, notesSortKey } = useSelector(getSettings)
+  const {
+    activeCategoryId,
+    activeFolder,
+    activeNoteId,
+    notes,
+    addNote,
+    swapFolder,
+    updateActiveNote,
+    assignFavoriteToNotes,
+    assignTrashToNotes,
+    updateSelectedNotes,
+    unassignTrashFromNotes,
+  } = useNotesStore()
+  const { previewMarkdown, notesSortKey, togglePreviewMarkdown } = useSettingsStore()
 
   const activeNote = getActiveNote(notes, activeNoteId)
 
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _addNote = (note: NoteItem) => dispatch(addNote(note))
+  const _addNote = (note: NoteItem) => addNote(note)
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
+    updateActiveNote({ noteId, multiSelect })
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateSelectedNotes({ noteId, multiSelect }))
-  const _swapFolder = (sortOrderKey: NotesSortKey) => (folder: Folder) =>
-    dispatch(swapFolder({ folder, sortOrderKey }))
-  const _togglePreviewMarkdown = () => dispatch(togglePreviewMarkdown())
-  const _assignTrashToNotes = (noteId: string) => dispatch(assignTrashToNotes(noteId))
-  const _unassignTrashFromNotes = (noteId: string) => dispatch(unassignTrashFromNotes(noteId))
-  const _assignFavoriteToNotes = (noteId: string) => dispatch(assignFavoriteToNotes(noteId))
+    updateSelectedNotes({ noteId, multiSelect })
+  const _swapFolder = (folder: Folder) =>
+    swapFolder({ folder, sortOrderKey: notesSortKey })
+  const _togglePreviewMarkdown = () => togglePreviewMarkdown()
+  const _assignTrashToNotes = (noteId: string) => assignTrashToNotes(noteId)
+  const _unassignTrashFromNotes = (noteId: string) => unassignTrashFromNotes(noteId)
+  const _assignFavoriteToNotes = (noteId: string) => assignFavoriteToNotes(noteId)
 
   // ===========================================================================
   // Handlers
@@ -61,13 +56,12 @@ export const AppSidebar: React.FC = () => {
       previewMarkdown,
       activeNote,
       activeCategoryId,
-      swapFolderHandler,
+      _swapFolder,
       _togglePreviewMarkdown,
       _addNote,
       _updateActiveNote,
       _updateSelectedNotes
     )
-  const swapFolderHandler = _swapFolder(notesSortKey)
 
   return (
     <aside className="app-sidebar">
@@ -81,11 +75,11 @@ export const AppSidebar: React.FC = () => {
       <section className="app-sidebar-main">
         <ScratchpadOption
           active={activeFolder === Folder.SCRATCHPAD}
-          swapFolder={swapFolderHandler}
+          swapFolder={_swapFolder}
         />
         <FolderOption
           active={activeFolder === Folder.ALL}
-          swapFolder={swapFolderHandler}
+          swapFolder={_swapFolder}
           text={LabelText.NOTES}
           dataTestID={TestID.FOLDER_NOTES}
           folder={Folder.ALL}
@@ -96,7 +90,7 @@ export const AppSidebar: React.FC = () => {
           text={LabelText.FAVORITES}
           dataTestID={TestID.FOLDER_FAVORITES}
           folder={Folder.FAVORITES}
-          swapFolder={swapFolderHandler}
+          swapFolder={_swapFolder}
           addNoteType={_assignFavoriteToNotes}
         />
         <FolderOption
@@ -104,7 +98,7 @@ export const AppSidebar: React.FC = () => {
           text={LabelText.TRASH}
           dataTestID={TestID.FOLDER_TRASH}
           folder={Folder.TRASH}
-          swapFolder={swapFolderHandler}
+          swapFolder={_swapFolder}
           addNoteType={_assignTrashToNotes}
         />
         <CategoryList />

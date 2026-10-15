@@ -1,23 +1,15 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { Draggable } from '@hello-pangea/dnd'
 import { Folder as FolderIcon, MoreHorizontal } from '@/icons'
 
 import { TestID } from '@resources/TestID'
 import { CategoryItem, ReactDragEvent, ReactMouseEvent, ReactSubmitEvent } from '@/types'
 import { determineCategoryClass } from '@/utils/helpers'
-import { getNotes, getCategories, getSettings } from '@/selectors'
-import {
-  updateActiveCategoryId,
-  updateActiveNote,
-  updateSelectedNotes,
-  addCategoryToNote,
-} from '@/slices/note'
-import { setCategoryEdit, categoryDragLeave, categoryDragEnter } from '@/slices/category'
 import { iconColor } from '@/utils/constants'
 import { ContextMenuEnum } from '@/utils/enums'
 import { getNotesSorter } from '@/utils/notesSortStrategies'
 import { ContextMenu } from '@/containers/ContextMenu'
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 interface CategoryOptionProps {
   category: CategoryItem
@@ -49,33 +41,36 @@ export const CategoryOption: React.FC<CategoryOptionProps> = ({
   setOptionsId,
 }) => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { activeCategoryId, notes } = useSelector(getNotes)
+  const {
+    activeCategoryId,
+    notes,
+    updateActiveCategoryId,
+    updateActiveNote,
+    updateSelectedNotes,
+    addCategoryToNote,
+  } = useNotesStore()
   const {
     editingCategory: { id: editingCategoryId, tempName: tempCategoryName },
-  } = useSelector(getCategories)
-  const { notesSortKey } = useSelector(getSettings)
+    setCategoryEdit,
+    categoryDragLeave,
+    categoryDragEnter,
+  } = useCategoriesStore()
+  const { notesSortKey } = useSettingsStore()
 
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _updateActiveCategoryId = (categoryId: string) =>
-    dispatch(updateActiveCategoryId(categoryId))
+  const _updateActiveCategoryId = (categoryId: string) => updateActiveCategoryId(categoryId)
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
+    updateActiveNote({ noteId, multiSelect })
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateSelectedNotes({ noteId, multiSelect }))
+    updateSelectedNotes({ noteId, multiSelect })
   const _setCategoryEdit = (categoryId: string, tempName: string) =>
-    dispatch(setCategoryEdit({ id: categoryId, tempName }))
+    setCategoryEdit({ id: categoryId, tempName })
   const _addCategoryToNote = (categoryId: string, noteId: string) =>
-    dispatch(addCategoryToNote({ categoryId, noteId }))
-  const _categoryDragEnter = (category: CategoryItem) => dispatch(categoryDragEnter(category))
-  const _categoryDragLeave = (category: CategoryItem) => dispatch(categoryDragLeave(category))
+    addCategoryToNote({ categoryId, noteId })
+  const _categoryDragEnter = (cat: CategoryItem) => categoryDragEnter(cat)
+  const _categoryDragLeave = (cat: CategoryItem) => categoryDragLeave(cat)
 
   return (
     <Draggable draggableId={category.id} index={index}>

@@ -11,15 +11,12 @@ import {
   DecorationSet,
   ViewUpdate,
 } from '@codemirror/view'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { getActiveNote } from '@/utils/helpers'
-import { updateNote } from '@/slices/note'
-import { NoteItem } from '@/types'
 import { NoteMenuBar } from '@/containers/NoteMenuBar'
 import { EmptyEditor } from '@/components/Editor/EmptyEditor'
 import { PreviewEditor } from '@/components/Editor/PreviewEditor'
-import { getNotes, getSettings } from '@/selectors'
+import { useNotesStore, useSettingsStore } from '@/store'
 
 const linkMatcher = new MatchDecorator({
   regexp: /\{\{[a-z0-9]{6}\}\}/g,
@@ -43,23 +40,13 @@ const noteLinkPlugin = ViewPlugin.fromClass(
 
 export const NoteEditor: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { activeNoteId, loading, notes } = useSelector(getNotes)
-  const { codeMirrorOptions, previewMarkdown, darkTheme } = useSelector(getSettings)
+  const { activeNoteId, loading, notes, updateNote } = useNotesStore()
+  const { codeMirrorOptions, previewMarkdown, darkTheme } = useSettingsStore()
 
   const activeNote = getActiveNote(notes, activeNoteId)
-
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _updateNote = (note: NoteItem) => {
-    dispatch(updateNote(note))
-  }
 
   const extensions = useMemo(() => {
     const list = [markdown(), EditorView.lineWrapping, noteLinkPlugin]
@@ -101,7 +88,7 @@ export const NoteEditor: React.FC = () => {
         }}
         extensions={extensions}
         onChange={(value) => {
-          _updateNote({
+          updateNote({
             id: activeNote.id,
             text: value,
             created: activeNote.created,

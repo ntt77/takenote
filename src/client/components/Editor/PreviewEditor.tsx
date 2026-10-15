@@ -1,11 +1,10 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useDispatch } from 'react-redux'
 
 import { Folder } from '@/utils/enums'
-import { updateActiveNote, updateSelectedNotes, pruneNotes, swapFolder } from '@/slices/note'
 import { NoteItem } from '@/types'
+import { useNotesStore } from '@/store'
 
 import { uuidPlugin } from '../../utils/reactMarkdownPlugins'
 
@@ -19,20 +18,20 @@ export interface PreviewEditorProps {
 
 export const PreviewEditor: React.FC<PreviewEditorProps> = ({ noteText, directionText, notes }) => {
   // ===========================================================================
-  // Dispatch
+  // Stores
   // ===========================================================================
 
-  const dispatch = useDispatch()
+  const { updateSelectedNotes, updateActiveNote, pruneNotes, swapFolder } = useNotesStore()
 
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateSelectedNotes({ noteId, multiSelect }))
+    updateSelectedNotes({ noteId, multiSelect })
 
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
+    updateActiveNote({ noteId, multiSelect })
 
-  const _pruneNotes = () => dispatch(pruneNotes())
+  const _pruneNotes = () => pruneNotes()
 
-  const _swapFolder = (folder: Folder) => dispatch(swapFolder({ folder }))
+  const _swapFolder = (folder: Folder) => swapFolder({ folder })
 
   // ===========================================================================
   // Handlers

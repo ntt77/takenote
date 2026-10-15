@@ -1,11 +1,10 @@
 import dayjs from 'dayjs'
 import JSZip from 'jszip'
-import { Action } from 'redux'
 
 import { LabelText } from '@resources/LabelText'
-import { Folder, NotesSortKey } from '@/utils/enums'
+import { Folder } from '@/utils/enums'
 import { folderMap } from '@/utils/constants'
-import { NoteItem, CategoryItem, WithPayload } from '@/types'
+import { NoteItem, CategoryItem } from '@/types'
 
 export const getActiveNote = (notes: NoteItem[], activeNoteId: string) =>
   notes.find((note) => note.id === activeNoteId)
@@ -128,31 +127,11 @@ export const newNoteHandlerHelper = (
   previewMarkdown: boolean,
   activeNote: NoteItem | undefined,
   activeCategoryId: string,
-  swapFolder: (
-    folder: Folder
-  ) => WithPayload<{ folder: string; sortOrderKey?: NotesSortKey }, Action<string>>,
-  togglePreviewMarkdown: () => WithPayload<undefined, Action<string>>,
-  addNote: (note: NoteItem) => WithPayload<NoteItem, Action<string>>,
-  updateActiveNote: (
-    noteId: string,
-    multiSelect: boolean
-  ) => WithPayload<
-    {
-      noteId: string
-      multiSelect: boolean
-    },
-    Action<string>
-  >,
-  updateSelectedNotes: (
-    noteId: string,
-    multiSelect: boolean
-  ) => WithPayload<
-    {
-      noteId: string
-      multiSelect: boolean
-    },
-    Action<string>
-  >
+  swapFolder: (folder: Folder) => void,
+  togglePreviewMarkdown: () => void,
+  addNote: (note: NoteItem) => void,
+  updateActiveNote: (noteId: string, multiSelect: boolean) => void,
+  updateSelectedNotes: (noteId: string, multiSelect: boolean) => void
 ) => {
   if ([Folder.TRASH, Folder.SCRATCHPAD].indexOf(activeFolder) !== -1) {
     swapFolder(Folder.ALL)

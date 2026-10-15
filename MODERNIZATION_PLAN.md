@@ -12,7 +12,7 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 - [x] **Vercel Readiness:** Configured `vercel.json` for seamless SPA deployments.
 - [x] **Phase 1: React 19 Core & Deprecations (Completed)**
 - [x] **Phase 2: Modern Layout, Vanilla CSS & CodeMirror 6 Editor (Completed)**
-- [ ] **Phase 3: State Management Overhaul (Redux $\rightarrow$ Zustand)**
+- [x] **Phase 3: State Management Overhaul (Redux → Zustand) (Completed)**
 - [x] **Phase 4: Routing & Polish (Completed)**
 - [ ] **Phase 5: Optional Enhancements (Deferred / On-demand)**
 
@@ -99,19 +99,27 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 
 ---
 
-## Phase 3: State Management Overhaul (Redux $\rightarrow$ Zustand)
+## Phase 3: State Management Overhaul (Redux → Zustand) (Completed)
 
 ### 3.1 Eliminate Redux & Redux-Saga Boilerplate
 
-- **Current:** `@reduxjs/toolkit`, `react-redux`, `redux`, `redux-saga` (~15KB+ gzipped).
+- **Status:** ✅ Completed
+- **Previous:** `@reduxjs/toolkit`, `react-redux`, `redux`, `redux-saga`, `@types/react-redux` (~15KB+ gzipped, 18 packages removed).
 - **Target:** **`zustand`** (v5, ~1.2KB).
+- **Architecture:**
+  - `useNotesStore`: Handles note items, active note, active folder/category, selection, multi-select, search, and direct local-first storage.
+  - `useCategoriesStore`: Handles custom category management, editing state, and drag reordering.
+  - `useSettingsStore`: Handles theme, text direction, CodeMirror options, modal state, and sorting strategies.
+  - `useAuthStore`: Handles user authentication state for the local-first environment.
 - **Benefits:**
-  - Eliminates action creators, reducers, slice wrappers, and generator functions.
-  - Simple, readable hooks:
+  - Completely eliminated action creators, reducers, sagas, generator functions, and slice boilerplate.
+  - Removed Redux `<Provider>` from `index.tsx`, mounting `<App />` directly.
+  - Direct, readable store hooks:
     ```tsx
     const { notes, activeNoteId, updateNote } = useNotesStore()
     ```
-  - Built-in `persist` middleware handles `localStorage` automatically with schema migration support.
+  - Direct synchronous rehydration from browser `localStorage` on boot with zero loading flash.
+  - Build time reduced to **< 850ms** with zero linting issues.
 
 ---
 

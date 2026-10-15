@@ -1,20 +1,8 @@
 import React, { useEffect, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { X, Command, Settings, Archive, Edit2, Download, DownloadCloud, UploadCloud } from '@/icons'
 
-import {
-  toggleSettingsModal,
-  updateCodeMirrorOption,
-  togglePreviewMarkdown,
-  toggleDarkTheme,
-  updateNotesSortStrategy,
-} from '@/slices/settings'
-import { updateNotes, importNotes } from '@/slices/note'
-import { logout } from '@/slices/auth'
-import { importCategories } from '@/slices/category'
 import { shortcutMap, notesSortOptions, directionTextOptions } from '@/utils/constants'
 import { CategoryItem, NoteItem, ReactMouseEvent } from '@/types'
-import { getSettings, getAuth, getNotes, getCategories } from '@/selectors'
 import { Option } from '@/components/SettingsModal/Option'
 import { Shortcut } from '@/components/SettingsModal/Shortcut'
 import { SelectOptions } from '@/components/SettingsModal/SelectOptions'
@@ -26,37 +14,46 @@ import { TabPanel } from '@/components/Tabs/TabPanel'
 import { LabelText } from '@resources/LabelText'
 import { TestID } from '@resources/TestID'
 import { IconButtonUploader } from '@/components/SettingsModal/IconButtonUploader'
+import {
+  useAuthStore,
+  useCategoriesStore,
+  useNotesStore,
+  useSettingsStore,
+} from '@/store'
 
 export const SettingsModal: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { codeMirrorOptions, isOpen, previewMarkdown, darkTheme, notesSortKey } =
-    useSelector(getSettings)
-  const { currentUser } = useSelector(getAuth)
-  const { notes, activeFolder, activeCategoryId } = useSelector(getNotes)
-  const { categories } = useSelector(getCategories)
+  const {
+    codeMirrorOptions,
+    isOpen,
+    previewMarkdown,
+    darkTheme,
+    notesSortKey,
+    toggleSettingsModal,
+    updateCodeMirrorOption,
+    togglePreviewMarkdown,
+    toggleDarkTheme,
+    updateNotesSortStrategy,
+  } = useSettingsStore()
+  const { currentUser, logout } = useAuthStore()
+  const { notes, activeFolder, activeCategoryId, updateNotes, importNotes } = useNotesStore()
+  const { categories, importCategories } = useCategoriesStore()
 
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _logout = () => dispatch(logout())
-  const _toggleSettingsModal = () => dispatch(toggleSettingsModal())
-  const _togglePreviewMarkdown = () => dispatch(togglePreviewMarkdown())
-  const _toggleDarkTheme = () => dispatch(toggleDarkTheme())
-  const _updateNotesSortStrategy = (sortBy: NotesSortKey) =>
-    dispatch(updateNotesSortStrategy(sortBy))
+  const _logout = () => logout()
+  const _toggleSettingsModal = () => toggleSettingsModal()
+  const _togglePreviewMarkdown = () => togglePreviewMarkdown()
+  const _toggleDarkTheme = () => toggleDarkTheme()
+  const _updateNotesSortStrategy = (sortBy: NotesSortKey) => updateNotesSortStrategy(sortBy)
   const _updateCodeMirrorOption = (key: string, value: any) =>
-    dispatch(updateCodeMirrorOption({ key, value }))
+    updateCodeMirrorOption({ key, value })
   const _updateNotes = (sortOrderKey: NotesSortKey) =>
-    dispatch(updateNotes({ notes, activeFolder, activeCategoryId, sortOrderKey }))
-  const _importBackup = (notes: NoteItem[], categories: CategoryItem[]) => {
-    dispatch(importNotes(notes))
-    dispatch(importCategories(categories))
+    updateNotes({ notes, activeFolder, activeCategoryId, sortOrderKey })
+  const _importBackup = (importedNotes: NoteItem[], importedCategories: CategoryItem[]) => {
+    importNotes(importedNotes)
+    importCategories(importedCategories)
   }
 
   // ===========================================================================
@@ -106,15 +103,16 @@ export const SettingsModal: React.FC = () => {
   const backupHandler = () => backupNotes(notes, categories)
   const importBackupHandler = async (json: File) => {
     const content = await json.text()
-    const { notes, categories } = JSON.parse(content) as {
+    const { notes: backupNotesData, categories: backupCategoriesData } = JSON.parse(content) as {
       notes: NoteItem[]
       categories: CategoryItem[]
     }
 
-    if (!notes || !categories) return
+    if (!backupNotesData || !backupCategoriesData) return
 
-    _importBackup(notes, categories)
+    _importBackup(backupNotesData, backupCategoriesData)
   }
+
   // ===========================================================================
   // Hooks
   // ===========================================================================

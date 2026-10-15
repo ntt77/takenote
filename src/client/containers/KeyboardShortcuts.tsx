@@ -1,5 +1,4 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import prettier from 'prettier/standalone'
 import parserMarkdown from 'prettier/parser-markdown'
 
@@ -7,47 +6,49 @@ import { useTempState } from '@/contexts/TempStateContext'
 import { Folder, Shortcuts } from '@/utils/enums'
 import { downloadNotes, getActiveNote, newNoteHandlerHelper } from '@/utils/helpers'
 import { useKey } from '@/utils/hooks'
-import {
-  addNote,
-  swapFolder,
-  toggleTrashNotes,
-  updateActiveNote,
-  updateSelectedNotes,
-  updateNote,
-} from '@/slices/note'
-import { getCategories, getNotes, getSettings } from '@/selectors'
 import { NoteItem } from '@/types'
-import { toggleDarkTheme, togglePreviewMarkdown, updateCodeMirrorOption } from '@/slices/settings'
+import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store'
 
 export const KeyboardShortcuts: React.FC = () => {
   // ===========================================================================
-  // Selectors
+  // Stores
   // ===========================================================================
 
-  const { categories } = useSelector(getCategories)
-  const { activeCategoryId, activeFolder, activeNoteId, notes, selectedNotesIds } =
-    useSelector(getNotes)
-  const { darkTheme, previewMarkdown } = useSelector(getSettings)
+  const { categories } = useCategoriesStore()
+  const {
+    activeCategoryId,
+    activeFolder,
+    activeNoteId,
+    notes,
+    selectedNotesIds,
+    addNote,
+    swapFolder,
+    toggleTrashNotes,
+    updateActiveNote,
+    updateSelectedNotes,
+    updateNote,
+  } = useNotesStore()
+  const {
+    darkTheme,
+    previewMarkdown,
+    toggleDarkTheme,
+    togglePreviewMarkdown,
+    updateCodeMirrorOption,
+  } = useSettingsStore()
 
   const activeNote = getActiveNote(notes, activeNoteId)
 
-  // ===========================================================================
-  // Dispatch
-  // ===========================================================================
-
-  const dispatch = useDispatch()
-
-  const _addNote = (note: NoteItem) => dispatch(addNote(note))
+  const _addNote = (note: NoteItem) => addNote(note)
   const _updateActiveNote = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateActiveNote({ noteId, multiSelect }))
+    updateActiveNote({ noteId, multiSelect })
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) =>
-    dispatch(updateSelectedNotes({ noteId, multiSelect }))
-  const _swapFolder = (folder: Folder) => dispatch(swapFolder({ folder }))
-  const _toggleTrashNotes = (noteId: string) => dispatch(toggleTrashNotes(noteId))
-  const _togglePreviewMarkdown = () => dispatch(togglePreviewMarkdown())
-  const _toggleDarkTheme = () => dispatch(toggleDarkTheme())
+    updateSelectedNotes({ noteId, multiSelect })
+  const _swapFolder = (folder: Folder) => swapFolder({ folder })
+  const _toggleTrashNotes = (noteId: string) => toggleTrashNotes(noteId)
+  const _togglePreviewMarkdown = () => togglePreviewMarkdown()
+  const _toggleDarkTheme = () => toggleDarkTheme()
   const _updateCodeMirrorOption = (key: string, value: string) =>
-    dispatch(updateCodeMirrorOption({ key, value }))
+    updateCodeMirrorOption({ key, value })
 
   // ===========================================================================
   // State
@@ -88,7 +89,6 @@ export const KeyboardShortcuts: React.FC = () => {
     _updateCodeMirrorOption('theme', darkTheme ? 'base16-light' : 'new-moon')
   }
   const prettifyNoteHandler = () => {
-    // format current note with prettier
     if (activeNote && activeNote.text) {
       const formattedText = prettier.format(activeNote.text, {
         parser: 'markdown',
@@ -100,7 +100,7 @@ export const KeyboardShortcuts: React.FC = () => {
         text: formattedText,
       }
 
-      dispatch(updateNote(updatedNote))
+      updateNote(updatedNote)
     }
   }
 
