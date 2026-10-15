@@ -25,6 +25,18 @@ import {
   ChevronDown as BxChevronDown,
   ChevronRight as BxChevronRight,
   Layers as BxLayers,
+  Bold as BxBold,
+  Italic as BxItalic,
+  Strikethrough as BxStrikethrough,
+  Heading as BxHeading,
+  Code as BxCode,
+  CodeAlt as BxCodeAlt,
+  ListUl as BxListUl,
+  ListOl as BxListOl,
+  CheckboxChecked as BxCheckboxChecked,
+  QuoteLeft as BxQuoteLeft,
+  Link as BxLink,
+  Table as BxTable,
 } from '@boxicons/react'
 
 export interface IconProps extends Omit<BoxIconProps, 'size'> {
@@ -101,3 +113,17 @@ export const Plus = createIcon(BxPlus)
 export const ChevronDown = createIcon(BxChevronDown)
 export const ChevronRight = createIcon(BxChevronRight)
 export const Layers = createIcon(BxLayers)
+
+// Markdown Formatting Icons
+export const Bold = createIcon(BxBold)
+export const Italic = createIcon(BxItalic)
+export const Strikethrough = createIcon(BxStrikethrough)
+export const Heading = createIcon(BxHeading)
+export const Code = createIcon(BxCode)
+export const CodeBlock = createIcon(BxCodeAlt)
+export const ListUl = createIcon(BxListUl)
+export const ListOl = createIcon(BxListOl)
+export const CheckboxChecked = createIcon(BxCheckboxChecked)
+export const QuoteLeft = createIcon(BxQuoteLeft)
+export const Link = createIcon(BxLink)
+export const Table = createIcon(BxTable)

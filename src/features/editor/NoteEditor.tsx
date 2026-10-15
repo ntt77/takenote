@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
-import React, { useMemo } from 'react'
-import CodeMirror from '@uiw/react-codemirror'
+import React, { useMemo, useRef, useCallback } from 'react'
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror'
 import { markdown } from '@codemirror/lang-markdown'
 import {
   EditorView,
@@ -16,6 +16,8 @@ import { getActiveNote } from '@/utils/helpers'
 import { NoteMenuBar } from '@/features/editor/NoteMenuBar'
 import { EmptyEditor } from '@/features/editor/components/EmptyEditor'
 import { PreviewEditor } from '@/features/editor/components/PreviewEditor'
+import { EditorToolbar } from '@/features/editor/components/EditorToolbar'
+import { markdownEditorExtensions } from '@/features/editor/utils/editorTheme'
 import { useNotesStore, useSettingsStore } from '@/store'
 
 const linkMatcher = new MatchDecorator({
@@ -48,8 +50,16 @@ export const NoteEditor: React.FC = () => {
 
   const activeNote = getActiveNote(notes, activeNoteId)
 
+  const editorRef = useRef<ReactCodeMirrorRef>(null)
+  const getView = useCallback(() => editorRef.current?.view, [])
+
   const extensions = useMemo(() => {
-    const list = [markdown(), EditorView.lineWrapping, noteLinkPlugin]
+    const list = [
+      markdown(),
+      EditorView.lineWrapping,
+      noteLinkPlugin,
+      ...markdownEditorExtensions,
+    ]
     if (codeMirrorOptions.scrollPastEnd) {
       list.push(scrollPastEnd())
     }
@@ -73,6 +83,7 @@ export const NoteEditor: React.FC = () => {
 
     return (
       <CodeMirror
+        ref={editorRef}
         data-testid="codemirror-editor"
         className="editor mousetrap"
         value={activeNote.text}
@@ -101,6 +112,7 @@ export const NoteEditor: React.FC = () => {
 
   return (
     <main className="note-editor">
+      {activeNote && !previewMarkdown && <EditorToolbar getView={getView} />}
       <NoteMenuBar />
       {renderEditor()}
     </main>

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.9.0 10/15/2026
+
+Modernization overhaul: Vite, Zustand, and CodeMirror 6.
+
+- **Framework & Bundler:** Upgraded to React 19 and migrated from Webpack to Vite for sub-second builds.
+- **State Management:** Replaced Redux and Redux-Saga with lightweight Zustand stores.
+- **Editor:** Upgraded to CodeMirror 6 with a new Markdown formatting toolbar and inline styling.
+- **Styling & Layout:** Migrated from Sass to native Vanilla CSS and modern resizable panels.
+- **Local-First Architecture:** Converted to a pure client-side application with direct browser storage and zero server requirements.
+- **Dependency Refresh:** Replaced deprecated libraries with modern alternatives.
+
 ## v0.7.2 10/27/2020
 
 Refactoring.
