@@ -14,7 +14,8 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 - [x] **Phase 2: Modern Layout, Vanilla CSS & CodeMirror 6 Editor (Completed)**
 - [x] **Phase 3: State Management Overhaul (Redux → Zustand) (Completed)**
 - [x] **Phase 4: Routing & Polish (Completed)**
-- [ ] **Phase 5: Optional Enhancements (Deferred / On-demand)**
+- [x] **Phase 5: Feature-Based Architecture & Directory Modernization (Completed)**
+- [ ] **Phase 6: Optional Enhancements (Deferred / On-demand)**
 
 ---
 
@@ -138,7 +139,32 @@ This document outlines the step-by-step roadmap to bring **TakeNote** up to mode
 
 ---
 
-## Phase 5: Optional Enhancements (Deferred / On-demand)
+## Phase 5: Feature-Based Architecture & Directory Modernization (Completed)
+
+### 5.1 Flatten `src/client` & Prune Legacy Artifacts
+- **Status:** ✅ Completed
+- Stripped redundant `src/client/` nesting into root `src/`.
+- Deleted `public/template.html` (legacy Webpack template).
+- Deleted `seed.js` (legacy Express database seeder).
+- Removed unused `path-browserify` polyfill from `package.json` and `vite.config.ts`.
+- Deleted `src/resources/assets/` (1.7 MB of dead graphics from old landing page).
+- Consolidated `LabelText.ts` and `TestID.ts` into `src/constants/` and deleted `src/resources/`.
+
+### 5.2 Eliminate Containers & Contexts in Favor of Features
+- **Status:** ✅ Completed
+- Abolished the legacy Redux "Smart Containers vs. Dumb Components" split.
+- Organized all domain logic into `src/features/`:
+  - `src/features/sidebar/`: AppSidebar, CategoryList, CategoryOption, and subcomponents.
+  - `src/features/notes/`: NoteList, ContextMenu, ContextMenuOptions, and search components.
+  - `src/features/editor/`: NoteEditor, NoteMenuBar, EmptyEditor, PreviewEditor, NoteLink.
+  - `src/features/settings/`: SettingsModal, KeyboardShortcuts, and configuration components.
+  - `src/components/ui/`: Reusable primitives (`Select`, `Switch`, `Tabs`).
+- Combined `TakeNoteApp.tsx` and `App.tsx` into a single, clean `src/App.tsx`.
+- Absorbed ephemeral `addingTempCategory` state into `useCategoriesStore`, eliminating `TempStateContext.tsx` and the `src/contexts/` directory entirely.
+
+---
+
+## Phase 6: Optional Enhancements (Deferred / On-demand)
 
 ### 5.1 Markdown Formatting Toolbar & Inline Styling
 
