@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Tooltip } from '@radix-ui/themes';
-import { Eye, Edit, Star, Trash2, Download, Settings, Sun, Moon, Clipboard as ClipboardCmp } from '@/icons';
+import { Tooltip, Toolbar } from '@mantine/core';
+import { MdVisibility, MdEdit, MdStar, MdStarBorder, MdDelete, MdFileDownload, MdContentCopy, MdSettings } from 'react-icons/md';
 
-import { TestID } from '@/constants/TestID';
-import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard } from '@/utils/helpers';
+import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard, getNoteTitle } from '@/utils/helpers';
 import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { ConfirmationModal } from '@/features/common/ConfirmationModal';
 
 export const NoteMenuBar = () => {
   // ===========================================================================
@@ -13,13 +13,13 @@ export const NoteMenuBar = () => {
 
   const { notes, activeNoteId, toggleFavoriteNotes, toggleTrashNotes } = useNotesStore();
   const { categories } = useCategoriesStore();
-  const { darkTheme, toggleSettingsModal, togglePreviewMarkdown, toggleDarkTheme, updateCodeMirrorOption } = useSettingsStore();
+  const { toggleSettingsModal, togglePreviewMarkdown } = useSettingsStore();
 
   // ===========================================================================
   // Other
   // ===========================================================================
 
-  const copyNoteIcon = <ClipboardCmp size={18} aria-hidden="true" focusable="false" />;
+  const copyNoteIcon = <MdContentCopy size={20} aria-hidden="true" focusable="false" />;
   const successfulCopyMessage = 'Note copied!';
   const activeNote = notes.find((note) => note.id === activeNoteId)!;
   const shortNoteUuid = getShortUuid(activeNoteId);
@@ -30,6 +30,7 @@ export const NoteMenuBar = () => {
 
   const [uuidCopiedText, setUuidCopiedText] = useState<string>('');
   const [isToggled, togglePreviewIcon] = useState<boolean>(false);
+  const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
 
   // ===========================================================================
   // Hooks
@@ -51,89 +52,109 @@ export const NoteMenuBar = () => {
 
   const downloadNotesHandler = () => downloadNotes([activeNote], categories);
   const favoriteNoteHandler = () => toggleFavoriteNotes(activeNoteId);
-  const trashNoteHandler = () => toggleTrashNotes(activeNoteId);
-  const settingsHandler = () => toggleSettingsModal();
-  const toggleDarkThemeHandler = () => {
-    toggleDarkTheme();
-    updateCodeMirrorOption({
-      key: 'theme',
-      value: darkTheme ? 'base16-light' : 'new-moon',
-    });
+  const trashNoteHandler = () => {
+    if (activeNote?.trash) {
+      toggleTrashNotes(activeNoteId);
+    } else {
+      setIsTrashModalOpen(true);
+    }
   };
+  const settingsHandler = () => toggleSettingsModal();
   const togglePreviewHandler = () => {
     togglePreviewIcon(!isToggled);
     togglePreviewMarkdown();
   };
 
   return (
-    <section className="note-menu-bar">
-      {activeNote && !isDraftNote(activeNote) ? (
-        <nav>
-          <Tooltip content={isToggled ? 'Edit note' : 'Preview note'}>
-            <button className="note-menu-bar-button" onClick={togglePreviewHandler} data-testid={TestID.PREVIEW_MODE} aria-label={isToggled ? 'Edit note' : 'Preview note'}>
-              {isToggled ? <Edit aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
-              <span className="sr-only">{isToggled ? 'Edit note' : 'Preview note'}</span>
-            </button>
-          </Tooltip>
-
-          {!activeNote.scratchpad && (
-            <>
-              <Tooltip content={activeNote.favorite ? 'Remove favorite' : 'Add to favorites'}>
-                <button className="note-menu-bar-button" onClick={favoriteNoteHandler} aria-label="Add note to favorites">
-                  <Star aria-hidden="true" size={18} />
-                  <span className="sr-only">Add note to favorites</span>
-                </button>
+    <>
+      <ConfirmationModal
+        opened={isTrashModalOpen}
+        onClose={() => setIsTrashModalOpen(false)}
+        onConfirm={() => toggleTrashNotes(activeNoteId)}
+        title="Move note to trash"
+        message={`Are you sure you want to move "${activeNote ? getNoteTitle(activeNote.text) : 'this note'}" to trash?`}
+        confirmLabel="Move to trash"
+        danger
+      />
+      <Toolbar
+        className="note-menu-bar"
+        size="lg"
+        aria-label="Note actions"
+        style={{
+          height: 46,
+          minHeight: 46,
+          borderTop: '1px solid #d8d8d8',
+          backgroundColor: '#e5e5e5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 99,
+          padding: '0 0.5rem',
+          borderRadius: 0,
+        }}>
+        {activeNote && !isDraftNote(activeNote) ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Toolbar.Group>
+              <Tooltip label={isToggled ? 'Edit note' : 'Preview note'} withArrow position="bottom">
+                <Toolbar.Toggle active={isToggled} onClick={togglePreviewHandler} aria-label={isToggled ? 'Edit note' : 'Preview note'}>
+                  {isToggled ? <MdEdit size={20} /> : <MdVisibility size={20} />}
+                </Toolbar.Toggle>
               </Tooltip>
 
-              <Tooltip content="Delete note">
-                <button className="note-menu-bar-button trash" onClick={trashNoteHandler} aria-label="Delete note">
-                  <Trash2 aria-hidden="true" size={18} />
-                  <span className="sr-only">Delete note</span>
-                </button>
+              {!activeNote.scratchpad && (
+                <Tooltip label={activeNote.favorite ? 'Remove favorite' : 'Add to favorites'} withArrow position="bottom">
+                  <Toolbar.Toggle active={activeNote.favorite} onClick={favoriteNoteHandler} aria-label="Add note to favorites">
+                    {activeNote.favorite ? <MdStar size={20} color="#e67e22" /> : <MdStarBorder size={20} />}
+                  </Toolbar.Toggle>
+                </Tooltip>
+              )}
+            </Toolbar.Group>
+
+            <Toolbar.Divider />
+
+            <Toolbar.Group>
+              {!activeNote.scratchpad && (
+                <Tooltip label="Delete note" withArrow position="bottom">
+                  <Toolbar.Toggle onClick={trashNoteHandler} aria-label="Delete note">
+                    <MdDelete size={20} />
+                  </Toolbar.Toggle>
+                </Tooltip>
+              )}
+
+              <Tooltip label="Download note" withArrow position="bottom">
+                <Toolbar.Toggle onClick={downloadNotesHandler} aria-label="Download note">
+                  <MdFileDownload size={20} />
+                </Toolbar.Toggle>
               </Tooltip>
-            </>
-          )}
 
-          <Tooltip content="Download note">
-            <button className="note-menu-bar-button" onClick={downloadNotesHandler} aria-label="Download note">
-              <Download aria-hidden="true" size={18} />
-              <span className="sr-only">Download note</span>
-            </button>
+              <Tooltip label="Copy note reference" withArrow position="bottom">
+                <Toolbar.Toggle
+                  onClick={() => {
+                    copyToClipboard(`{{${shortNoteUuid}}}`);
+                    setUuidCopiedText(successfulCopyMessage);
+                  }}
+                  aria-label="Copy note">
+                  {copyNoteIcon}
+                  {uuidCopiedText && <span className="uuid-copied-text">{uuidCopiedText}</span>}
+                </Toolbar.Toggle>
+              </Tooltip>
+            </Toolbar.Group>
+          </div>
+        ) : (
+          <div />
+        )}
+        <Toolbar.Group>
+          <Tooltip label="Settings" withArrow position="bottom">
+            <Toolbar.Toggle onClick={settingsHandler} aria-label="Settings">
+              <MdSettings size={20} />
+            </Toolbar.Toggle>
           </Tooltip>
-
-          <Tooltip content="Copy note reference">
-            <button
-              className="note-menu-bar-button uuid"
-              onClick={() => {
-                copyToClipboard(`{{${shortNoteUuid}}}`);
-                setUuidCopiedText(successfulCopyMessage);
-              }}
-              aria-label="Copy note"
-              data-testid={TestID.UUID_MENU_BAR_COPY_ICON}>
-              {copyNoteIcon}
-              {uuidCopiedText && <span className="uuid-copied-text">{uuidCopiedText}</span>}
-              <span className="sr-only">Copy note</span>
-            </button>
-          </Tooltip>
-        </nav>
-      ) : (
-        <div />
-      )}
-      <nav>
-        <Tooltip content={darkTheme ? 'Switch to light mode' : 'Switch to dark mode'}>
-          <button className="note-menu-bar-button" onClick={toggleDarkThemeHandler} aria-label="Themes">
-            {darkTheme ? <Sun aria-hidden="true" size={18} /> : <Moon aria-hidden="true" size={18} />}
-            <span className="sr-only">Themes</span>
-          </button>
-        </Tooltip>
-
-        <Tooltip content="Settings">
-          <button className="note-menu-bar-button" onClick={settingsHandler} aria-label="Settings">
-            <Settings aria-hidden="true" size={18} />
-            <span className="sr-only">Settings</span>
-          </button>
-        </Tooltip>
-      </nav>
-    </section>
+        </Toolbar.Group>
+      </Toolbar>
+    </>
   );
 };

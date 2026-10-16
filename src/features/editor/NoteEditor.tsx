@@ -3,13 +3,14 @@ import React, { useMemo, useRef, useCallback } from 'react';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { EditorView, scrollPastEnd, MatchDecorator, Decoration, ViewPlugin, DecorationSet, ViewUpdate } from '@codemirror/view';
+import { Center, Loader } from '@mantine/core';
 
 import { getActiveNote } from '@/utils/helpers';
 import { NoteMenuBar } from '@/features/editor/NoteMenuBar';
 import { EmptyEditor } from '@/features/editor/components/EmptyEditor';
 import { PreviewEditor } from '@/features/editor/components/PreviewEditor';
 import { EditorToolbar } from '@/features/editor/components/EditorToolbar';
-import { markdownEditorExtensions } from '@/features/editor/utils/editorTheme';
+import { bbedit } from '@uiw/codemirror-theme-bbedit';
 import { useNotesStore, useSettingsStore } from '@/store';
 
 const linkMatcher = new MatchDecorator({
@@ -38,7 +39,7 @@ export const NoteEditor: React.FC = () => {
   // ===========================================================================
 
   const { activeNoteId, loading, notes, updateNote } = useNotesStore();
-  const { codeMirrorOptions, previewMarkdown, darkTheme } = useSettingsStore();
+  const { codeMirrorOptions, previewMarkdown } = useSettingsStore();
 
   const activeNote = getActiveNote(notes, activeNoteId);
 
@@ -46,7 +47,7 @@ export const NoteEditor: React.FC = () => {
   const getView = useCallback(() => editorRef.current?.view, []);
 
   const extensions = useMemo(() => {
-    const list = [markdown(), EditorView.lineWrapping, noteLinkPlugin, ...markdownEditorExtensions];
+    const list = [markdown(), EditorView.lineWrapping, noteLinkPlugin];
     if (codeMirrorOptions.scrollPastEnd) {
       list.push(scrollPastEnd());
     }
@@ -55,7 +56,11 @@ export const NoteEditor: React.FC = () => {
 
   const renderEditor = () => {
     if (loading) {
-      return <div className="empty-editor v-center">Loading...</div>;
+      return (
+        <Center style={{ flex: 1, height: '100%' }}>
+          <Loader size="md" />
+        </Center>
+      );
     } else if (!activeNote) {
       return <EmptyEditor />;
     } else if (previewMarkdown) {
@@ -65,11 +70,10 @@ export const NoteEditor: React.FC = () => {
     return (
       <CodeMirror
         ref={editorRef}
-        data-testid="codemirror-editor"
         className="editor mousetrap"
         value={activeNote.text}
         height="100%"
-        theme={darkTheme ? 'dark' : 'light'}
+        theme={bbedit}
         basicSetup={{
           lineNumbers: !!codeMirrorOptions.lineNumbers,
           highlightActiveLine: !!codeMirrorOptions.styleActiveLine,

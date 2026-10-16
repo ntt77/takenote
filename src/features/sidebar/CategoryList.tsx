@@ -1,15 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 
-import { LabelText } from '@/constants/LabelText';
-import { TestID } from '@/constants/TestID';
 import { CategoryOption } from '@/features/sidebar/CategoryOption';
-import { shouldOpenContextMenu } from '@/utils/helpers';
-import { ReactMouseEvent, ReactSubmitEvent } from '@/types';
+import { ReactSubmitEvent } from '@/types';
 import { AddCategoryForm } from '@/features/sidebar/components/AddCategoryForm';
 import { AddCategoryButton } from '@/features/sidebar/components/AddCategoryButton';
 import { CollapseCategoryListButton } from '@/features/sidebar/components/CollapseCategoryButton';
 import { useCategoriesStore } from '@/store';
+import { FcPlus } from 'react-icons/fc';
 
 export const CategoryList: React.FC = () => {
   // ===========================================================================
@@ -29,17 +27,9 @@ export const CategoryList: React.FC = () => {
   const _setCategoryEdit = (categoryId: string, tempName: string) => setCategoryEdit({ id: categoryId, tempName });
 
   // ===========================================================================
-  // Refs
-  // ===========================================================================
-
-  const contextMenuRef = useRef<HTMLDivElement>(null);
-
-  // ===========================================================================
   // State
   // ===========================================================================
 
-  const [optionsId, setOptionsId] = useState('');
-  const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 });
   const [isCategoryListOpen, setCategoryListOpen] = useState(true);
 
   // ===========================================================================
@@ -49,29 +39,6 @@ export const CategoryList: React.FC = () => {
   const onAddCategory = (adding: boolean) => {
     setCategoryListOpen(true);
     setAddingTempCategory(adding);
-  };
-
-  const handleCategoryMenuClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | ReactMouseEvent, categoryId: string = '') => {
-    const clicked = event.target;
-
-    if (!clicked) return;
-
-    if (shouldOpenContextMenu(clicked as Element)) {
-      if ('clientX' in event && 'clientY' in event) {
-        setOptionsPosition({ x: event.clientX, y: event.clientY });
-      }
-    }
-
-    event.stopPropagation();
-
-    if (!contextMenuRef?.current?.contains(clicked as HTMLDivElement)) {
-      setOptionsId(!optionsId || optionsId !== categoryId ? categoryId : '');
-    }
-  };
-
-  const handleCategoryRightClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | ReactMouseEvent, categoryId: string = '') => {
-    event.preventDefault();
-    handleCategoryMenuClick(event, categoryId);
   };
 
   const resetTempCategory = () => {
@@ -105,29 +72,16 @@ export const CategoryList: React.FC = () => {
     }
   };
 
-  // ===========================================================================
-  // Hooks
-  // ===========================================================================
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleCategoryMenuClick);
-
-    return () => {
-      document.removeEventListener('mousedown', handleCategoryMenuClick);
-    };
-  });
-
   return (
     <>
       <div className="category-title">
         <CollapseCategoryListButton
-          dataTestID={TestID.CATEGORY_COLLAPSE_BUTTON}
           handler={() => setCategoryListOpen(!isCategoryListOpen)}
-          label={LabelText.COLLAPSE_CATEGORY}
+          label="Collapse Category List"
           isCategoryListOpen={isCategoryListOpen}
           showIcon={categories.length > 0}
         />
-        <AddCategoryButton dataTestID={TestID.ADD_CATEGORY_BUTTON} handler={onAddCategory} label={LabelText.ADD_CATEGORY} />
+        <AddCategoryButton handler={onAddCategory} label="Add category" />
       </div>
       {isCategoryListOpen && (
         <>
@@ -135,26 +89,30 @@ export const CategoryList: React.FC = () => {
             {(droppableProvided) => (
               <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef} className="category-list" aria-label="Category list">
                 {categories.map((category, index) => (
-                  <CategoryOption
-                    key={category.id}
-                    index={index}
-                    category={category}
-                    contextMenuRef={contextMenuRef}
-                    handleCategoryMenuClick={handleCategoryMenuClick}
-                    handleCategoryRightClick={handleCategoryRightClick}
-                    onSubmitUpdateCategory={onSubmitUpdateCategory}
-                    optionsId={optionsId}
-                    setOptionsId={setOptionsId}
-                    optionsPosition={optionsPosition}
-                  />
+                  <CategoryOption key={category.id} index={index} category={category} onSubmitUpdateCategory={onSubmitUpdateCategory} />
                 ))}
                 {droppableProvided.placeholder}
               </div>
             )}
           </Droppable>
+          {categories.length === 0 && !addingTempCategory && (
+            <div
+              className="category-empty-state"
+              onClick={() => onAddCategory(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onAddCategory(true);
+                }
+              }}>
+              <FcPlus size={16} />
+              <span>New category</span>
+            </div>
+          )}
           {addingTempCategory && (
             <AddCategoryForm
-              dataTestID={TestID.NEW_CATEGORY_FORM}
               submitHandler={onSubmitNewCategory}
               changeHandler={_setCategoryEdit}
               resetHandler={resetTempCategory}

@@ -1,8 +1,7 @@
 import React from 'react';
-import { TextField } from '@radix-ui/themes';
+import { TextInput } from '@mantine/core';
 
-import { Search } from '@/icons';
-import { TestID } from '@/constants/TestID';
+import { FcSearch } from 'react-icons/fc';
 
 export interface SearchBarProps {
   searchRef: React.MutableRefObject<HTMLInputElement>;
@@ -11,24 +10,20 @@ export interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = ({ searchRef, searchNotes }) => {
   return (
-    <TextField.Root
+    <TextInput
       ref={searchRef}
-      data-testid={TestID.NOTE_SEARCH}
       type="search"
       placeholder="Search for notes"
-      size="2"
-      variant="surface"
-      style={{ width: '100%' }}
+      size="xs"
+      leftSection={<FcSearch size={16} />}
+      style={{ width: '100%', flex: 1, minWidth: 0 }}
       onChange={(event) => {
         event.preventDefault();
         searchNotes(event.target.value);
       }}
       onDragOver={(e) => {
         e.preventDefault();
-      }}>
-      <TextField.Slot>
-        <Search size={15} />
-      </TextField.Slot>
-    </TextField.Root>
+      }}
+    />
   );
 };

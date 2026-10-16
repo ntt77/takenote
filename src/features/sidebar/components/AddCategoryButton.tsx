@@ -1,20 +1,17 @@
 import React from 'react';
-import { Tooltip } from '@radix-ui/themes';
-import { Plus } from '@/icons';
-
-import { iconColor } from '@/utils/constants';
+import { Tooltip } from '@mantine/core';
+import { FcPlus } from 'react-icons/fc';
 
 export interface AddCategoryButtonProps {
-  dataTestID: string;
   handler: (adding: boolean) => void;
   label: string;
 }
 
-export const AddCategoryButton: React.FC<AddCategoryButtonProps> = ({ dataTestID, handler, label }) => {
+export const AddCategoryButton: React.FC<AddCategoryButtonProps> = ({ handler, label }) => {
   return (
-    <Tooltip content={label}>
-      <button data-testid={dataTestID} className="category-button" onClick={() => handler(true)} aria-label={label}>
-        <Plus size={16} color={iconColor} />
+    <Tooltip label={label} withArrow position="right" openDelay={200}>
+      <button type="button" className="add-category-button" onClick={() => handler(true)} aria-label={label}>
+        <FcPlus size={16} />
       </button>
     </Tooltip>
   );

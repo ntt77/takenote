@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { MoreHorizontal, Book, Star, Folder as FolderIcon } from '@/icons';
+import React from 'react';
+import { Menu, ScrollArea, VisuallyHidden } from '@mantine/core';
+import { FcRating, FcFolder, FcBookmark } from 'react-icons/fc';
+import { MdMoreVert, MdDelete, MdRestore, MdClose, MdFileDownload, MdContentCopy } from 'react-icons/md';
 
-import { TestID } from '@/constants/TestID';
-import { Folder, Shortcuts, ContextMenuEnum } from '@/utils/enums';
+import { Folder, Shortcuts } from '@/utils/enums';
 import { NoteListButton } from '@/features/notes/components/NoteListButton';
 import { SearchBar } from '@/features/notes/components/SearchBar';
-import { ContextMenu } from '@/features/notes/ContextMenu';
-import { getNoteTitle, shouldOpenContextMenu, debounceEvent, isDraftNote } from '@/utils/helpers';
+import { getNoteTitle, debounceEvent, isDraftNote, downloadNotes, getShortUuid, copyToClipboard } from '@/utils/helpers';
 import { useKey } from '@/utils/hooks';
-import { NoteItem, ReactDragEvent, ReactMouseEvent } from '@/types';
+import { NoteItem, ReactDragEvent } from '@/types';
 import { getNotesSorter } from '@/utils/notesSortStrategies';
 import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { ConfirmationModal } from '@/features/common/ConfirmationModal';
 
 export const NoteList: React.FC = () => {
   // ===========================================================================
@@ -18,8 +19,23 @@ export const NoteList: React.FC = () => {
   // ===========================================================================
 
   const { notesSortKey } = useSettingsStore();
-  const { activeCategoryId, activeFolder, selectedNotesIds, notes, searchValue, updateSelectedNotes, permanentlyEmptyTrash, pruneNotes, updateActiveNote, searchNotes } =
-    useNotesStore();
+  const {
+    activeCategoryId,
+    activeFolder,
+    selectedNotesIds,
+    notes,
+    searchValue,
+    updateSelectedNotes,
+    permanentlyEmptyTrash,
+    pruneNotes,
+    updateActiveNote,
+    searchNotes,
+    deleteNotes,
+    toggleTrashNotes,
+    toggleFavoriteNotes,
+    addCategoryToNote,
+    updateActiveCategoryId,
+  } = useNotesStore();
   const { categories } = useCategoriesStore();
 
   const _updateSelectedNotes = (noteId: string, multiSelect: boolean) => updateSelectedNotes({ noteId, multiSelect });
@@ -27,20 +43,21 @@ export const NoteList: React.FC = () => {
   const _pruneNotes = () => pruneNotes();
   const _updateActiveNote = (noteId: string, multiSelect: boolean) => updateActiveNote({ noteId, multiSelect });
   const _searchNotes = debounceEvent((val: string) => searchNotes(val), 100);
+  const _deleteNotes = (noteIds: string[]) => deleteNotes(noteIds);
+  const _toggleTrashNotes = (noteId: string) => toggleTrashNotes(noteId);
+  const _toggleFavoriteNotes = (noteId: string) => toggleFavoriteNotes(noteId);
+  const _addCategoryToNote = (categoryId: string, noteId: string) => addCategoryToNote({ categoryId, noteId });
+  const _updateActiveCategoryId = (categoryId: string) => updateActiveCategoryId(categoryId);
 
   // ===========================================================================
   // Refs
   // ===========================================================================
 
-  const contextMenuRef = useRef<HTMLDivElement>(null);
   const searchRef = React.useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
   // ===========================================================================
-  // State
+  // State & Computed
   // ===========================================================================
-
-  const [optionsId, setOptionsId] = useState('');
-  const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 });
 
   const re = new RegExp(searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
   const isMatch = (result: NoteItem) => re.test(result.text);
@@ -54,83 +71,85 @@ export const NoteList: React.FC = () => {
   };
 
   const filteredNotes: NoteItem[] = notes.filter(filter[activeFolder]).filter(isMatch).sort(getNotesSorter(notesSortKey));
+  const selectedNotes = notes.filter((n) => selectedNotesIds.includes(n.id));
+  const isSelectedNotesDiffFavor = Boolean(selectedNotes.find((n) => n.favorite) && selectedNotes.find((n) => !n.favorite));
 
   // ===========================================================================
-  // Handlers
+  // Handlers & Confirmations
   // ===========================================================================
+
+  const [confirmDialog, setConfirmDialog] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmLabel: '',
+    onConfirm: () => {},
+  });
 
   const focusSearchHandler = () => searchRef.current.focus();
 
   const handleDragStart = (event: ReactDragEvent, noteId: string = '') => {
     event.stopPropagation();
-
     event.dataTransfer.setData('text/plain', noteId);
   };
 
-  const handleNoteOptionsClick = (event: ReactMouseEvent, noteId: string = '') => {
-    const clicked = event.target;
-
-    if (!clicked) return;
-
-    if (shouldOpenContextMenu(clicked as Element)) {
-      if ('pageX' in event && 'pageY' in event) {
-        setOptionsPosition({ x: event.pageX, y: event.pageY });
-      }
-    }
-
-    event.stopPropagation();
-
-    if (!contextMenuRef.current || !contextMenuRef.current.contains(clicked as HTMLDivElement)) {
-      setOptionsId(!optionsId || optionsId !== noteId ? noteId : '');
-    }
+  const handleEmptyTrash = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Empty Trash',
+      message: 'Are you sure you want to permanently delete all notes in Trash? This action cannot be undone.',
+      confirmLabel: 'Empty Trash',
+      onConfirm: () => _permanentlyEmptyTrash(),
+    });
   };
 
-  const handleNoteRightClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, noteId: string = '') => {
-    event.preventDefault();
-    const clicked = event.target;
-    const RIGHT_CLICK = 2;
+  const handleDeletePermanently = (note: NoteItem) => {
+    const targetIds = selectedNotesIds.includes(note.id) ? selectedNotesIds : [note.id];
+    const count = targetIds.length;
+    const title = getNoteTitle(note.text);
+    const message =
+      count > 1
+        ? `Are you sure you want to permanently delete ${count} selected notes? This action cannot be undone.`
+        : `Are you sure you want to permanently delete "${title}"? This action cannot be undone.`;
 
-    if (!clicked) return;
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete permanently',
+      message,
+      confirmLabel: 'Delete permanently',
+      onConfirm: () => _deleteNotes(targetIds),
+    });
+  };
 
-    if (event.ctrlKey) return;
-
-    if (optionsId && event.button === RIGHT_CLICK) return;
-
-    if ('clientX' in event && 'clientY' in event) {
-      setOptionsPosition({ x: event.clientX, y: event.clientY });
-    }
-
-    event.stopPropagation();
-
-    if (!contextMenuRef.current || contextMenuRef.current.contains(clicked as HTMLDivElement)) {
-      setOptionsId(!optionsId || optionsId !== noteId ? noteId : '');
-    }
+  const handleMoveToTrash = (note: NoteItem) => {
+    const title = getNoteTitle(note.text);
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Move note to trash',
+      message: `Are you sure you want to move "${title}" to trash?`,
+      confirmLabel: 'Move to trash',
+      onConfirm: () => _toggleTrashNotes(note.id),
+    });
   };
 
   const showEmptyTrash = activeFolder === Folder.TRASH && filteredNotes.length > 0;
 
-  // ===========================================================================
-  // Hooks
-  // ===========================================================================
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleNoteOptionsClick);
-
-    return () => {
-      document.removeEventListener('mousedown', handleNoteOptionsClick);
-    };
-  });
-
   useKey(Shortcuts.SEARCH, () => focusSearchHandler());
 
   return (
-    <aside className="note-sidebar">
+    <aside className="note-sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div className="note-sidebar-header">
         <SearchBar searchRef={searchRef} searchNotes={_searchNotes} />
-        {showEmptyTrash && <NoteListButton dataTestID={TestID.EMPTY_TRASH_BUTTON} label="Empty Trash" handler={() => _permanentlyEmptyTrash()} />}
+        {showEmptyTrash && <NoteListButton label="Empty Trash" handler={handleEmptyTrash} />}
       </div>
-      <div data-testid={TestID.NOTE_LIST} className="note-list">
-        {filteredNotes.map((note: NoteItem, index: number) => {
+      <ScrollArea className="note-list" style={{ flex: 1 }} type="hover">
+        {filteredNotes.map((note: NoteItem) => {
           let noteTitle: string | React.ReactElement = getNoteTitle(note.text);
           const noteCategory = categories.find((category) => category.id === note.category);
 
@@ -150,72 +169,167 @@ export const NoteList: React.FC = () => {
             }
           }
 
-          return (
-            <div
-              data-testid={TestID.NOTE_LIST_ITEM + index}
-              className={selectedNotesIds.includes(note.id) ? 'note-list-each selected' : 'note-list-each'}
-              key={note.id}
-              onClick={(event) => {
-                event.stopPropagation();
+          const hasCategory = Boolean(note.category);
 
-                _updateSelectedNotes(note.id, event.metaKey);
-                _updateActiveNote(note.id, event.metaKey);
-                _pruneNotes();
-              }}
-              onContextMenu={(event) => handleNoteRightClick(event, note.id)}
-              draggable={note.text !== ''}
-              onDragStart={(event) => handleDragStart(event, note.id)}>
-              <div className="note-list-outer">
-                <div data-testid={'note-title-' + index} className="note-title">
-                  {note.favorite ? (
-                    <>
-                      <div className="icon">
-                        <Star aria-hidden="true" className="note-favorite" size={12} />
-                        <span className="sr-only">Favorite note</span>
-                      </div>
-                      <div className="truncate-text">{noteTitle}</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="icon" />
-                      <div className="truncate-text"> {noteTitle}</div>
-                    </>
-                  )}
-                </div>
-                {!isDraftNote(note) ? (
-                  <div
-                    data-testid={TestID.NOTE_OPTIONS_DIV + index}
-                    className={optionsId === note.id ? 'note-options selected' : 'note-options'}
-                    onClick={(event) => handleNoteOptionsClick(event, note.id)}>
-                    <MoreHorizontal aria-hidden="true" size={15} className="context-menu-action" />
-                    <span className="sr-only">Note options</span>
+          return (
+            <Menu key={note.id} shadow="md" width={220} withinPortal position="bottom-end">
+              <Menu.ContextMenu>
+                <div
+                  className={selectedNotesIds.includes(note.id) ? 'note-list-each selected' : 'note-list-each'}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    _updateSelectedNotes(note.id, event.metaKey);
+                    _updateActiveNote(note.id, event.metaKey);
+                    _pruneNotes();
+                  }}
+                  onContextMenu={() => {
+                    if (!selectedNotesIds.includes(note.id)) {
+                      _updateSelectedNotes(note.id, false);
+                      _updateActiveNote(note.id, false);
+                    }
+                  }}
+                  draggable={note.text !== ''}
+                  onDragStart={(event) => handleDragStart(event, note.id)}>
+                  <div className="note-list-outer">
+                    <div className="note-title">
+                      {note.favorite ? (
+                        <>
+                          <div className="icon">
+                            <FcRating aria-hidden="true" className="note-favorite" size={16} />
+                            <VisuallyHidden>Favorite note</VisuallyHidden>
+                          </div>
+                          <div className="truncate-text">{noteTitle}</div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="icon" />
+                          <div className="truncate-text"> {noteTitle}</div>
+                        </>
+                      )}
+                    </div>
+                    {!isDraftNote(note) ? (
+                      <Menu.Target>
+                        <div
+                          className="note-options"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                          }}>
+                          <MdMoreVert aria-hidden="true" size={16} className="context-menu-action" />
+                          <VisuallyHidden>Note options</VisuallyHidden>
+                        </div>
+                      </Menu.Target>
+                    ) : (
+                      <div className="note-options">&nbsp;</div>
+                    )}
                   </div>
-                ) : (
-                  <div className="note-options">&nbsp;</div>
-                )}
-              </div>
-              {(activeFolder === Folder.ALL || activeFolder === Folder.FAVORITES) && (
-                <div className="note-category">
-                  {noteCategory ? (
+                  {(activeFolder === Folder.ALL || activeFolder === Folder.FAVORITES) && (
+                    <div className="note-category">
+                      {noteCategory ? (
+                        <>
+                          <FcFolder size={16} className="context-menu-action" />
+                          {noteCategory?.name}
+                        </>
+                      ) : (
+                        <>
+                          <FcBookmark size={16} className="context-menu-action" />
+                          Notes
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Menu.ContextMenu>
+
+              {!isDraftNote(note) && (
+                <Menu.Dropdown>
+                  {note.trash ? (
                     <>
-                      <FolderIcon size={12} className="context-menu-action" />
-                      {noteCategory?.name}
+                      <Menu.Item color="red" leftSection={<MdDelete size={16} />} onClick={() => handleDeletePermanently(note)}>
+                        Delete permanently
+                      </Menu.Item>
+                      <Menu.Item leftSection={<MdRestore size={16} />} onClick={() => _toggleTrashNotes(note.id)}>
+                        Restore from trash
+                      </Menu.Item>
                     </>
                   ) : (
                     <>
-                      <Book size={12} className="context-menu-action" />
-                      Notes
+                      {!note.scratchpad && (
+                        <>
+                          <Menu.Item leftSection={<FcRating size={15} />} onClick={() => _toggleFavoriteNotes(note.id)}>
+                            {isSelectedNotesDiffFavor ? 'Toggle favorite' : note.favorite ? 'Remove favorite' : 'Mark as favorite'}
+                          </Menu.Item>
+
+                          {categories.length > 0 && (
+                            <Menu.Sub>
+                              <Menu.Sub.Target>
+                                <Menu.Item leftSection={<FcFolder size={15} />}>Move to category...</Menu.Item>
+                              </Menu.Sub.Target>
+                              <Menu.Sub.Dropdown>
+                                {categories.map((cat) => (
+                                  <Menu.Item
+                                    key={cat.id}
+                                    disabled={cat.id === note.category}
+                                    leftSection={<FcFolder size={16} />}
+                                    onClick={() => {
+                                      _addCategoryToNote(cat.id, note.id);
+                                      if (cat.id !== activeCategoryId) {
+                                        _updateActiveCategoryId(cat.id);
+                                        _updateActiveNote(note.id, false);
+                                      }
+                                    }}>
+                                    {cat.name}
+                                  </Menu.Item>
+                                ))}
+                              </Menu.Sub.Dropdown>
+                            </Menu.Sub>
+                          )}
+
+                          {hasCategory && (
+                            <Menu.Item
+                              leftSection={<MdClose size={16} />}
+                              onClick={() => {
+                                _addCategoryToNote('', note.id);
+                                _updateActiveNote(note.id, false);
+                              }}>
+                              Remove category
+                            </Menu.Item>
+                          )}
+
+                          <Menu.Item color="red" leftSection={<MdDelete size={16} />} onClick={() => handleMoveToTrash(note)}>
+                            Move to trash
+                          </Menu.Item>
+                        </>
+                      )}
+
+                      <Menu.Item leftSection={<MdFileDownload size={16} />} onClick={() => downloadNotes(selectedNotesIds.includes(note.id) ? selectedNotes : [note], categories)}>
+                        Download
+                      </Menu.Item>
+
+                      <Menu.Item
+                        leftSection={<MdContentCopy size={16} />}
+                        onClick={() => {
+                          const shortUuid = getShortUuid(note.id);
+                          copyToClipboard(`{{${shortUuid}}}`);
+                        }}>
+                        Copy reference to note
+                      </Menu.Item>
                     </>
                   )}
-                </div>
+                </Menu.Dropdown>
               )}
-              {optionsId === note.id && !isDraftNote(note) && (
-                <ContextMenu contextMenuRef={contextMenuRef} item={note} optionsPosition={optionsPosition} setOptionsId={setOptionsId} type={ContextMenuEnum.NOTE} />
-              )}
-            </div>
+            </Menu>
           );
         })}
-      </div>
+      </ScrollArea>
+      <ConfirmationModal
+        opened={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={confirmDialog.confirmLabel}
+        danger
+      />
     </aside>
   );
 };

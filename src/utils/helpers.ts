@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import JSZip from 'jszip';
 
-import { LabelText } from '@/constants/LabelText';
 import { Folder } from '@/utils/enums';
 import { folderMap } from '@/utils/constants';
 import { NoteItem, CategoryItem } from '@/types';
@@ -28,7 +27,7 @@ export const getNoteTitle = (text: string): string => {
 
   // Get the first line of text after any newlines
   // In the future, this should break on a full word
-  return noteText ? noteText[0].trim().split(/\r?\n/)[0] : LabelText.NEW_NOTE;
+  return noteText ? noteText[0].trim().split(/\r?\n/)[0] : 'New note';
 };
 
 export const noteWithFrontmatter = (note: NoteItem, category?: CategoryItem): string =>
@@ -147,24 +146,6 @@ export const newNoteHandlerHelper = (
   }
 };
 
-export const shouldOpenContextMenu = (clicked: Element) => {
-  if (!clicked.parentElement) return;
-
-  const elementContainsClass = (className: string) => clicked.classList.contains(className);
-
-  const parentContainsClass = (className: string) => clicked.parentElement!.classList.contains(className);
-
-  return (
-    (clicked instanceof Element &&
-      // If the element is explicitly a context menu action
-      elementContainsClass('context-menu-action')) ||
-    // If the element is an item of the context menu
-    (!elementContainsClass('nav-item') && !elementContainsClass('options-context-menu') && !elementContainsClass('nav-item-icon') && !parentContainsClass('nav-item-icon')) ||
-    // Or if it's a sub-element of the context menu
-    (clicked.tagName === 'circle' && parentContainsClass('context-menu-action'))
-  );
-};
-
 export const getWebsiteTitle = (activeFolder: Folder, activeCategory?: CategoryItem) => {
   // Show category name if category is active
   if (activeFolder === Folder.CATEGORY && activeCategory) {
@@ -175,12 +156,8 @@ export const getWebsiteTitle = (activeFolder: Folder, activeCategory?: CategoryI
   }
 };
 
-export const determineAppClass = (darkTheme: boolean, _sidebarVisible: boolean, _activeFolder: Folder) => {
-  let className = 'app';
-
-  if (darkTheme) className += ' dark';
-
-  return className;
+export const determineAppClass = (_sidebarVisible: boolean, _activeFolder: Folder) => {
+  return 'app';
 };
 
 export const determineCategoryClass = (category: CategoryItem, isDragging: boolean, activeCategoryId: string) => {

@@ -4,12 +4,11 @@ import { NotesSortKey, DirectionText } from '@/utils/enums';
 
 const defaultSettings = {
   previewMarkdown: false,
-  darkTheme: false,
   sidebarVisible: true,
   notesSortKey: NotesSortKey.LAST_UPDATED,
   codeMirrorOptions: {
     mode: 'gfm',
-    theme: 'base16-light',
+    theme: 'bbedit',
     lineNumbers: false,
     lineWrapping: true,
     styleActiveLine: { nonEmpty: true },
@@ -41,19 +40,12 @@ const loadInitialSettings = () => {
   return defaultSettings;
 };
 
-const saveSettingsToLocalStorage = (settings: {
-  previewMarkdown: boolean;
-  darkTheme: boolean;
-  sidebarVisible: boolean;
-  notesSortKey: NotesSortKey;
-  codeMirrorOptions: { [key: string]: any };
-}) => {
+const saveSettingsToLocalStorage = (settings: { previewMarkdown: boolean; sidebarVisible: boolean; notesSortKey: NotesSortKey; codeMirrorOptions: { [key: string]: any } }) => {
   try {
     localStorage.setItem(
       'settings',
       JSON.stringify({
         previewMarkdown: settings.previewMarkdown,
-        darkTheme: settings.darkTheme,
         sidebarVisible: settings.sidebarVisible,
         notesSortKey: settings.notesSortKey,
         codeMirrorOptions: settings.codeMirrorOptions,
@@ -68,7 +60,6 @@ export interface SettingsStoreState {
   isOpen: boolean;
   previewMarkdown: boolean;
   loading: boolean;
-  darkTheme: boolean;
   sidebarVisible: boolean;
   notesSortKey: NotesSortKey;
   codeMirrorOptions: { [key: string]: any };
@@ -77,7 +68,6 @@ export interface SettingsStoreState {
   toggleSettingsModal: () => void;
   updateCodeMirrorOption: (payload: { key: string; value: any }) => void;
   togglePreviewMarkdown: () => void;
-  toggleDarkTheme: () => void;
   updateNotesSortStrategy: (sortBy: NotesSortKey) => void;
   loadSettings: () => void;
 }
@@ -88,7 +78,6 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
   isOpen: false,
   previewMarkdown: initial.previewMarkdown,
   loading: false,
-  darkTheme: initial.darkTheme,
   sidebarVisible: initial.sidebarVisible,
   notesSortKey: initial.notesSortKey,
   codeMirrorOptions: initial.codeMirrorOptions,
@@ -119,17 +108,6 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
     });
   },
 
-  toggleDarkTheme: () => {
-    set((state) => {
-      const next = !state.darkTheme;
-      saveSettingsToLocalStorage({
-        ...state,
-        darkTheme: next,
-      });
-      return { darkTheme: next };
-    });
-  },
-
   updateNotesSortStrategy: (sortBy) => {
     set((state) => {
       saveSettingsToLocalStorage({
@@ -144,7 +122,6 @@ export const useSettingsStore = create<SettingsStoreState>((set) => ({
     const loaded = loadInitialSettings();
     set({
       previewMarkdown: loaded.previewMarkdown,
-      darkTheme: loaded.darkTheme,
       sidebarVisible: loaded.sidebarVisible,
       notesSortKey: loaded.notesSortKey,
       codeMirrorOptions: loaded.codeMirrorOptions,

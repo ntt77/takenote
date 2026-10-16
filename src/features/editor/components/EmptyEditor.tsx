@@ -1,17 +1,15 @@
 import React from 'react';
-import { Kbd } from '@radix-ui/themes';
+import { Center, Stack, Text, Kbd } from '@mantine/core';
 
 export const EmptyEditor: React.FC = () => {
   return (
-    <div className="empty-editor v-center" data-testid="empty-editor">
-      <div className="text-center">
-        <p>
-          <strong>Create a note</strong>
-        </p>
-        <p>
-          <Kbd size="2">CTRL</Kbd> + <Kbd size="2">ALT</Kbd> + <Kbd size="2">N</Kbd>
-        </p>
-      </div>
-    </div>
+    <Center style={{ flex: 1, height: '100%' }}>
+      <Stack align="center" gap="xs">
+        <Text fw={700}>Create a note</Text>
+        <Text c="dimmed" size="sm">
+          <Kbd size="sm">CTRL</Kbd> + <Kbd size="sm">ALT</Kbd> + <Kbd size="sm">N</Kbd>
+        </Text>
+      </Stack>
+    </Center>
   );
 };

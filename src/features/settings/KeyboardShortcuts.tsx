@@ -3,10 +3,11 @@ import prettier from 'prettier/standalone';
 import parserMarkdown from 'prettier/parser-markdown';
 
 import { Folder, Shortcuts } from '@/utils/enums';
-import { downloadNotes, getActiveNote, newNoteHandlerHelper } from '@/utils/helpers';
+import { downloadNotes, getActiveNote, newNoteHandlerHelper, getNoteTitle } from '@/utils/helpers';
 import { useKey } from '@/utils/hooks';
 import { NoteItem } from '@/types';
 import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { ConfirmationModal } from '@/features/common/ConfirmationModal';
 
 export const KeyboardShortcuts: React.FC = () => {
   // ===========================================================================
@@ -16,7 +17,9 @@ export const KeyboardShortcuts: React.FC = () => {
   const { categories, addingTempCategory, setAddingTempCategory } = useCategoriesStore();
   const { activeCategoryId, activeFolder, activeNoteId, notes, selectedNotesIds, addNote, swapFolder, toggleTrashNotes, updateActiveNote, updateSelectedNotes, updateNote } =
     useNotesStore();
-  const { darkTheme, previewMarkdown, toggleDarkTheme, togglePreviewMarkdown, updateCodeMirrorOption } = useSettingsStore();
+  const { previewMarkdown, togglePreviewMarkdown } = useSettingsStore();
+
+  const [isTrashModalOpen, setIsTrashModalOpen] = React.useState(false);
 
   const activeNote = getActiveNote(notes, activeNoteId);
 
@@ -26,8 +29,6 @@ export const KeyboardShortcuts: React.FC = () => {
   const _swapFolder = (folder: Folder) => swapFolder({ folder });
   const _toggleTrashNotes = (noteId: string) => toggleTrashNotes(noteId);
   const _togglePreviewMarkdown = () => togglePreviewMarkdown();
-  const _toggleDarkTheme = () => toggleDarkTheme();
-  const _updateCodeMirrorOption = (key: string, value: string) => updateCodeMirrorOption({ key, value });
 
   // ===========================================================================
   // Handlers
@@ -36,16 +37,19 @@ export const KeyboardShortcuts: React.FC = () => {
   const newNoteHandler = () =>
     newNoteHandlerHelper(activeFolder, previewMarkdown, activeNote, activeCategoryId, _swapFolder, _togglePreviewMarkdown, _addNote, _updateActiveNote, _updateSelectedNotes);
   const newTempCategoryHandler = () => !addingTempCategory && setAddingTempCategory(true);
-  const trashNoteHandler = () => _toggleTrashNotes(activeNote!.id);
+  const trashNoteHandler = () => {
+    if (!activeNote) return;
+    if (activeNote.trash) {
+      _toggleTrashNotes(activeNote.id);
+    } else {
+      setIsTrashModalOpen(true);
+    }
+  };
   const downloadNotesHandler = () => {
     if (!activeNote || selectedNotesIds.length === 0) return;
     downloadNotes(selectedNotesIds.includes(activeNote.id) ? notes.filter((note) => selectedNotesIds.includes(note.id)) : [activeNote], categories);
   };
   const togglePreviewMarkdownHandler = () => _togglePreviewMarkdown();
-  const toggleDarkThemeHandler = () => {
-    _toggleDarkTheme();
-    _updateCodeMirrorOption('theme', darkTheme ? 'base16-light' : 'new-moon');
-  };
   const prettifyNoteHandler = () => {
     if (activeNote && activeNote.text) {
       const formattedText = prettier.format(activeNote.text, {
@@ -71,8 +75,17 @@ export const KeyboardShortcuts: React.FC = () => {
   useKey(Shortcuts.DELETE_NOTE, () => trashNoteHandler());
   useKey(Shortcuts.DOWNLOAD_NOTES, () => downloadNotesHandler());
   useKey(Shortcuts.PREVIEW, () => togglePreviewMarkdownHandler());
-  useKey(Shortcuts.TOGGLE_THEME, () => toggleDarkThemeHandler());
   useKey(Shortcuts.PRETTIFY, () => prettifyNoteHandler());
 
-  return null;
+  return (
+    <ConfirmationModal
+      opened={isTrashModalOpen}
+      onClose={() => setIsTrashModalOpen(false)}
+      onConfirm={() => activeNote && _toggleTrashNotes(activeNote.id)}
+      title="Move note to trash"
+      message={`Are you sure you want to move "${activeNote ? getNoteTitle(activeNote.text) : 'this note'}" to trash?`}
+      confirmLabel="Move to trash"
+      danger
+    />
+  );
 };

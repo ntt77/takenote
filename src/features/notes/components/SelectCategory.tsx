@@ -1,7 +1,6 @@
 import React from 'react';
-import { Select, Box } from '@radix-ui/themes';
+import { Select, Box } from '@mantine/core';
 
-import { TestID } from '@/constants/TestID';
 import { NoteItem, CategoryItem } from '@/types';
 import { isDraftNote } from '@/utils/helpers';
 
@@ -19,18 +18,21 @@ export const SelectCategory: React.FC<SelectCategoryProps> = ({ onChange, catego
     return null;
   }
 
+  const selectData = filteredCategories.map((c) => ({
+    value: c.id,
+    label: c.name,
+  }));
+
   return (
-    <Box p="2" data-testid={TestID.MOVE_TO_CATEGORY}>
-      <Select.Root onValueChange={(value) => onChange({ target: { value } })}>
-        <Select.Trigger placeholder="Move to category..." style={{ width: '100%' }} />
-        <Select.Content position="popper">
-          {filteredCategories.map((category) => (
-            <Select.Item key={category.id} value={category.id}>
-              {category.name}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select.Root>
+    <Box p="xs">
+      <Select
+        placeholder="Move to category..."
+        size="xs"
+        data={selectData}
+        onChange={(value) => value && onChange({ target: { value } })}
+        allowDeselect={false}
+        comboboxProps={{ withinPortal: true }}
+      />
     </Box>
   );
 };

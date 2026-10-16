@@ -25,11 +25,13 @@
     "lint": "eslint . --cache"
   },
   "dependencies": {
-    "@boxicons/react": "^1.0.3",
+    "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-markdown": "^6.5.2",
     "@codemirror/view": "^6.43.14",
     "@hello-pangea/dnd": "^18.0.1",
-    "@radix-ui/themes": "^3.3.0",
+    "@mantine/core": "^9.7.2",
+    "@mantine/hooks": "^9.7.2",
+    "@uiw/codemirror-theme-bbedit": "^4.25.12",
     "@uiw/react-codemirror": "^4.25.12",
     "dayjs": "^1.11.13",
     "jszip": "^3.10.1",
@@ -38,6 +40,7 @@
     "prettier": "^2.8.8",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-icons": "^5.7.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.14.5",
     "remark-gfm": "^4.0.1",
@@ -47,6 +50,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jszip": "^3.4.1",
+    "@types/mousetrap": "^1.6.15",
     "@types/node": "^22.10.2",
     "@types/prettier": "^2.7.3",
     "@types/react": "^19.3.0",

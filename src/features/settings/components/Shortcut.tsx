@@ -1,5 +1,5 @@
 import React from 'react';
-import { Kbd } from '@radix-ui/themes';
+import { Kbd } from '@mantine/core';
 
 export interface ShortcutProps {
   action: string;
@@ -11,7 +11,7 @@ export const Shortcut: React.FC<ShortcutProps> = ({ action, letter }) => {
     <div className="settings-shortcut">
       <div>{action}</div>
       <div className="keys">
-        <Kbd size="2">CTRL</Kbd> + <Kbd size="2">ALT</Kbd> + <Kbd size="2">{letter}</Kbd>
+        <Kbd size="sm">CTRL</Kbd> + <Kbd size="sm">ALT</Kbd> + <Kbd size="sm">{letter}</Kbd>
       </div>
     </div>
   );

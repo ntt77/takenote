@@ -1,18 +1,18 @@
 import React from 'react';
-import { ChevronDown, ChevronRight, Layers } from '@/icons';
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md';
+import { FcFolder } from 'react-icons/fc';
 
-export interface CollapseCategoryListButton {
-  dataTestID: string;
+export interface CollapseCategoryListButtonProps {
   handler: () => void;
   label: string;
   isCategoryListOpen: boolean;
   showIcon: boolean;
 }
 
-export const CollapseCategoryListButton: React.FC<CollapseCategoryListButton> = ({ dataTestID, handler, label, isCategoryListOpen, showIcon }) => {
+export const CollapseCategoryListButton: React.FC<CollapseCategoryListButtonProps> = ({ handler, label, isCategoryListOpen, showIcon }) => {
   return (
-    <button data-testid={dataTestID} className="collapse-button" onClick={handler} aria-label={label}>
-      {showIcon ? isCategoryListOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} /> : <Layers size={16} />}
+    <button className="collapse-button" onClick={handler} aria-label={label}>
+      {showIcon ? isCategoryListOpen ? <MdKeyboardArrowDown size={20} /> : <MdKeyboardArrowRight size={20} /> : <FcFolder size={16} />}
       <h2>Categories</h2>
     </button>
   );

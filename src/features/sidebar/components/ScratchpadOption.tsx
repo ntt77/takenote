@@ -1,10 +1,7 @@
 import React from 'react';
-import { Edit } from '@/icons';
+import { FcDocument } from 'react-icons/fc';
 
-import { TestID } from '@/constants/TestID';
-import { LabelText } from '@/constants/LabelText';
 import { Folder } from '@/utils/enums';
-import { iconColor } from '@/utils/constants';
 
 export interface ScratchpadOptionProps {
   active: boolean;
@@ -18,9 +15,9 @@ export const ScratchpadOption: React.FC<ScratchpadOptionProps> = ({ active, swap
         swapFolder(Folder.SCRATCHPAD);
       }}
       className="app-sidebar-wrapper">
-      <div data-testid={TestID.SCRATCHPAD} className={`app-sidebar-link ${active ? 'active' : ''}`}>
-        <Edit size={15} className="app-sidebar-icon" color={iconColor} />
-        {LabelText.SCRATCHPAD}
+      <div className={`app-sidebar-link ${active ? 'active' : ''}`}>
+        <FcDocument size={20} className="app-sidebar-icon" />
+        Scratchpad
       </div>
     </button>
   );

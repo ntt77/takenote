@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
-import { Book, Star, Trash2 } from '@/icons';
+import { FcRating, FcBookmark, FcFullTrash } from 'react-icons/fc';
 
 import { Folder } from '@/utils/enums';
-import { iconColor } from '@/utils/constants';
 import { ReactDragEvent } from '@/types';
 
 export interface FolderOptionProps {
   text: string;
   active: boolean;
-  dataTestID: string;
   folder: Folder;
   swapFolder: (folder: Folder) => void;
   addNoteType: (noteId: string) => void;
 }
 
-export const FolderOption: React.FC<FolderOptionProps> = ({ text, active, dataTestID, folder, swapFolder, addNoteType }) => {
+export const FolderOption: React.FC<FolderOptionProps> = ({ text, active, folder, swapFolder, addNoteType }) => {
   const [mainSectionDragState, setMainSectionDragState] = useState({
     [Folder.ALL]: false,
     [Folder.FAVORITES]: false,
@@ -47,11 +45,11 @@ export const FolderOption: React.FC<FolderOptionProps> = ({ text, active, dataTe
 
   const renderIcon = () => {
     if (folder === 'FAVORITES') {
-      return <Star size={15} className="app-sidebar-icon" color={iconColor} />;
+      return <FcRating size={20} className="app-sidebar-icon" />;
     } else if (folder === 'ALL') {
-      return <Book size={15} className="app-sidebar-icon" color={iconColor} />;
+      return <FcBookmark size={20} className="app-sidebar-icon" />;
     } else {
-      return <Trash2 size={15} className="app-sidebar-icon" color={iconColor} />;
+      return <FcFullTrash size={20} className="app-sidebar-icon" />;
     }
   };
 
@@ -62,7 +60,6 @@ export const FolderOption: React.FC<FolderOptionProps> = ({ text, active, dataTe
       }}
       className="app-sidebar-wrapper">
       <div
-        data-testid={dataTestID}
         className={determineClass()}
         onDrop={noteHandler}
         onDragOver={(event: ReactDragEvent) => {

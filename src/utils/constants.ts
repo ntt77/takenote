@@ -17,7 +17,6 @@ export const shortcutMap = [
   { action: 'Download a note', key: 'O' },
   { action: 'Sync all notes', key: 'L' },
   { action: 'Markdown preview', key: 'P' },
-  { action: 'Toggle theme', key: 'K' },
   { action: 'Search notes', key: 'F' },
   { action: 'Prettify a note', key: 'I' },
 ];

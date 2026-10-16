@@ -13,14 +13,8 @@ export enum Shortcuts {
   SYNC_NOTES = 'ctrl+alt+l',
   DOWNLOAD_NOTES = 'ctrl+alt+o',
   PREVIEW = 'alt+ctrl+p',
-  TOGGLE_THEME = 'alt+ctrl+k',
   SEARCH = 'alt+ctrl+f',
   PRETTIFY = 'ctrl+alt+i',
-}
-
-export enum ContextMenuEnum {
-  CATEGORY = 'CATEGORY',
-  NOTE = 'NOTE',
 }
 
 export enum NotesSortKey {

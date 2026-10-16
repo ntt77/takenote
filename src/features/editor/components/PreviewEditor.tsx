@@ -9,6 +9,7 @@ import { useNotesStore } from '@/store';
 import { uuidPlugin } from '@/utils/reactMarkdownPlugins';
 
 import NoteLink from './NoteLink';
+import styles from './PreviewEditor.module.css';
 
 export interface PreviewEditorProps {
   noteText: string;
@@ -55,8 +56,10 @@ export const PreviewEditor: React.FC<PreviewEditorProps> = ({ noteText, directio
     return <NoteLink uuid={value} notes={notes} handleNoteLinkClick={handleNoteLinkClick} />;
   };
 
+  const directionClass = directionText === 'rtl' ? styles.direction_rtl : styles.direction_ltr;
+
   return (
-    <div className={`previewer previewer_direction-${directionText}`}>
+    <div className={`${styles.previewer} ${directionClass}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, uuidPlugin]}
         components={{

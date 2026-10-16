@@ -1,8 +1,7 @@
 import React from 'react';
-import { Plus } from '@/icons';
+import { Box, ScrollArea } from '@mantine/core';
+import { FcPlus } from 'react-icons/fc';
 
-import { LabelText } from '@/constants/LabelText';
-import { TestID } from '@/constants/TestID';
 import { ActionButton } from '@/features/sidebar/components/ActionButton';
 import { FolderOption } from '@/features/sidebar/components/FolderOption';
 import { ScratchpadOption } from '@/features/sidebar/components/ScratchpadOption';
@@ -51,36 +50,19 @@ export const AppSidebar: React.FC = () => {
     newNoteHandlerHelper(activeFolder, previewMarkdown, activeNote, activeCategoryId, _swapFolder, _togglePreviewMarkdown, _addNote, _updateActiveNote, _updateSelectedNotes);
 
   return (
-    <aside className="app-sidebar">
-      <ActionButton dataTestID={TestID.SIDEBAR_ACTION_CREATE_NEW_NOTE} handler={newNoteHandler} icon={Plus} label={LabelText.CREATE_NEW_NOTE} text={LabelText.NEW_NOTE} />
-      <section className="app-sidebar-main">
-        <ScratchpadOption active={activeFolder === Folder.SCRATCHPAD} swapFolder={_swapFolder} />
-        <FolderOption
-          active={activeFolder === Folder.ALL}
-          swapFolder={_swapFolder}
-          text={LabelText.NOTES}
-          dataTestID={TestID.FOLDER_NOTES}
-          folder={Folder.ALL}
-          addNoteType={_unassignTrashFromNotes}
-        />
-        <FolderOption
-          active={activeFolder === Folder.FAVORITES}
-          text={LabelText.FAVORITES}
-          dataTestID={TestID.FOLDER_FAVORITES}
-          folder={Folder.FAVORITES}
-          swapFolder={_swapFolder}
-          addNoteType={_assignFavoriteToNotes}
-        />
-        <FolderOption
-          active={activeFolder === Folder.TRASH}
-          text={LabelText.TRASH}
-          dataTestID={TestID.FOLDER_TRASH}
-          folder={Folder.TRASH}
-          swapFolder={_swapFolder}
-          addNoteType={_assignTrashToNotes}
-        />
-        <CategoryList />
-      </section>
+    <aside className="app-sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Box p="xs">
+        <ActionButton handler={newNoteHandler} icon={FcPlus} label="Create new note" text="New note" />
+      </Box>
+      <ScrollArea style={{ flex: 1 }} type="hover">
+        <section className="app-sidebar-main">
+          <ScratchpadOption active={activeFolder === Folder.SCRATCHPAD} swapFolder={_swapFolder} />
+          <FolderOption active={activeFolder === Folder.ALL} swapFolder={_swapFolder} text="Notes" folder={Folder.ALL} addNoteType={_unassignTrashFromNotes} />
+          <FolderOption active={activeFolder === Folder.FAVORITES} text="Favorites" folder={Folder.FAVORITES} swapFolder={_swapFolder} addNoteType={_assignFavoriteToNotes} />
+          <FolderOption active={activeFolder === Folder.TRASH} text="Trash" folder={Folder.TRASH} swapFolder={_swapFolder} addNoteType={_assignTrashToNotes} />
+          <CategoryList />
+        </section>
+      </ScrollArea>
     </aside>
   );
 };
