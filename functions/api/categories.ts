@@ -1,5 +1,5 @@
 /// <reference types="@cloudflare/workers-types" />
-import { Env, CategoryRow, ensureTables, jsonResponse, optionsResponse } from '../db';
+import { Env, CategoryRow, ensureTables, isAuthorized, jsonResponse, optionsResponse } from '../db';
 
 interface CategoryPayload {
   id: string;
@@ -10,6 +10,10 @@ interface CategoryPayload {
 export const onRequestOptions = async () => optionsResponse();
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
+  if (!(await isAuthorized(context.request, context.env))) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
   const db = context.env.DB;
   if (!db) {
     return jsonResponse({ error: 'D1 database binding "DB" not found' }, 500);
@@ -31,6 +35,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  if (!(await isAuthorized(context.request, context.env))) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
   const db = context.env.DB;
   if (!db) {
     return jsonResponse({ error: 'D1 database binding "DB" not found' }, 500);
@@ -69,6 +77,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
+  if (!(await isAuthorized(context.request, context.env))) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+
   const db = context.env.DB;
   if (!db) {
     return jsonResponse({ error: 'D1 database binding "DB" not found' }, 500);

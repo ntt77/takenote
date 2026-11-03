@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Tooltip, Toolbar, Text } from '@mantine/core';
-import { MdVisibility, MdEdit, MdStar, MdStarBorder, MdDelete, MdFileDownload, MdContentCopy, MdSettings, MdViewSidebar } from 'react-icons/md';
+import { MdVisibility, MdEdit, MdStar, MdStarBorder, MdDelete, MdFileDownload, MdContentCopy, MdSettings, MdViewSidebar, MdLock } from 'react-icons/md';
 
 import { downloadNotes, isDraftNote, getShortUuid, copyToClipboard, getNoteTitle } from '@/utils/helpers';
-import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { useAuthStore, useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
 import { ConfirmationModal } from '@/features/common/ConfirmationModal';
 
 export const NoteMenuBar = () => {
@@ -14,6 +14,7 @@ export const NoteMenuBar = () => {
   const { notes, activeNoteId, toggleFavoriteNotes, toggleTrashNotes } = useNotesStore();
   const { categories } = useCategoriesStore();
   const { toggleSettingsModal, togglePreviewMarkdown, sidebarVisible, toggleSidebar } = useSettingsStore();
+  const { lock, isConfigured } = useAuthStore();
 
   // ===========================================================================
   // Other
@@ -169,6 +170,11 @@ export const NoteMenuBar = () => {
             <Tooltip label="Settings" withArrow position="bottom">
               <Toolbar.Toggle onClick={settingsHandler} aria-label="Settings">
                 <MdSettings size={20} />
+              </Toolbar.Toggle>
+            </Tooltip>
+            <Tooltip label="Lock app" withArrow position="bottom">
+              <Toolbar.Toggle onClick={lock} aria-label="Lock app">
+                <MdLock size={20} />
               </Toolbar.Toggle>
             </Tooltip>
           </Toolbar.Group>

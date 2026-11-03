@@ -4,10 +4,52 @@ const API_BASE = '/api';
 
 const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
+const getHeaders = (extra: Record<string, string> = {}): Record<string, string> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extra,
+  };
+  try {
+    const pass = sessionStorage.getItem('takenote_password');
+    if (pass) {
+      headers['x-app-password'] = pass;
+    }
+  } catch {
+    // sessionStorage not available
+  }
+  return headers;
+};
+
 export const api = {
+  async checkAuthRequired(): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/auth`);
+      if (!res.ok) return false;
+      const data = await res.json();
+      return Boolean(data.required);
+    } catch {
+      return false;
+    }
+  },
+
+  async verifyAuth(password: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
   async fetchNotes(): Promise<NoteItem[] | null> {
     try {
-      const res = await fetch(`${API_BASE}/notes`);
+      const res = await fetch(`${API_BASE}/notes`, {
+        headers: getHeaders(),
+      });
       if (!res.ok) return null;
       const data = await res.json();
       return Array.isArray(data.notes) ? data.notes : null;
@@ -20,7 +62,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/notes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ notes }),
       });
       return res.ok;
@@ -33,7 +75,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/notes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify(note),
       });
       return res.ok;
@@ -70,7 +112,7 @@ export const api = {
 
       const res = await fetch(`${API_BASE}/notes`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ ids: noteIds }),
       });
       return res.ok;
@@ -81,7 +123,9 @@ export const api = {
 
   async fetchCategories(): Promise<CategoryItem[] | null> {
     try {
-      const res = await fetch(`${API_BASE}/categories`);
+      const res = await fetch(`${API_BASE}/categories`, {
+        headers: getHeaders(),
+      });
       if (!res.ok) return null;
       const data = await res.json();
       return Array.isArray(data.categories) ? data.categories : null;
@@ -94,7 +138,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/categories`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ categories }),
       });
       return res.ok;
@@ -107,7 +151,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/categories`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify(category),
       });
       return res.ok;
@@ -120,6 +164,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE}/categories?id=${encodeURIComponent(categoryId)}`, {
         method: 'DELETE',
+        headers: getHeaders(),
       });
       return res.ok;
     } catch {
@@ -127,4 +172,3 @@ export const api = {
     }
   },
 };
-

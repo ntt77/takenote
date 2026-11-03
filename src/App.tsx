@@ -13,7 +13,8 @@ import { NoteList } from '@/features/notes/NoteList';
 import { SettingsModal } from '@/features/settings/SettingsModal';
 import { Folder } from '@/utils/enums';
 import { getWebsiteTitle, getActiveCategory, getDayJsLocale } from '@/utils/helpers';
-import { useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { useAuthStore, useCategoriesStore, useNotesStore, useSettingsStore } from '@/store';
+import { LockScreen } from '@/features/auth/LockScreen';
 
 dayjs.extend(localizedFormat);
 dayjs.locale(getDayJsLocale(navigator.language));
@@ -22,11 +23,18 @@ export const App = () => {
   const { sidebarVisible } = useSettingsStore();
   const { activeFolder, activeCategoryId, syncNotesWithD1 } = useNotesStore();
   const { categories, swapCategories, syncCategoriesWithD1 } = useCategoriesStore();
+  const { isLocked, checkAuth } = useAuthStore();
 
   useEffect(() => {
-    syncNotesWithD1();
-    syncCategoriesWithD1();
-  }, [syncNotesWithD1, syncCategoriesWithD1]);
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (!isLocked) {
+      syncNotesWithD1();
+      syncCategoriesWithD1();
+    }
+  }, [isLocked, syncNotesWithD1, syncCategoriesWithD1]);
 
   const activeCategory = getActiveCategory(categories, activeCategoryId);
 
@@ -89,6 +97,7 @@ export const App = () => {
         <KeyboardShortcuts />
         <SettingsModal />
       </Box>
+      {isLocked && <LockScreen />}
     </MantineProvider>
   );
 };

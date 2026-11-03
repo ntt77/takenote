@@ -25,7 +25,6 @@
 - **Plain text & Markdown** - write and edit notes in a clean, distraction-free environment.
 - **CodeMirror 6 Editor** - modular, TypeScript-native editor with multi-cursor support, syntax highlighting, and smooth scrolling.
 - **Markdown Formatting Toolbar** - intuitive toolbar with quick actions for Bold, Italic, Strikethrough, Headings (H1/H2/H3 cycling), Quotes, Code, Code Blocks, Bullet/Numbered/Task Lists, Links, and Tables.
-- **Inline Editor Styling** - proportional headings, bold weights, and styled code blocks directly inside the editor.
 - **Markdown Preview** - preview rendered HTML powered by modern `react-markdown` and `remark-gfm` (tables, task checklists, strikethrough).
 - **Linked Notes** - link notes seamlessly with `{{uuid}}` syntax.
 - **Local-First & Private** - notes are persisted directly in browser `localStorage`. No tracking, no external database, and no server required.
@@ -34,6 +33,45 @@
 - **Drag and Drop** - organize categories and notes with smooth `@hello-pangea/dnd` drag-and-drop.
 - **Modern Themes** - curated light and dark modes with runtime CSS custom properties.
 - **Fast Resizable Panels** - powered by `react-resizable-panels` with persistent layout widths.
+
+## Cloudflare Deployment & Environment Variables
+
+TakeNote runs on **Cloudflare Pages** with **Pages Functions** and a **Cloudflare D1** SQLite database.
+
+### 1. Database Binding (Required for Cloud sync)
+
+| Type                    | Name / Binding | Required | Description                                                                                     |
+| :---------------------- | :------------- | :------- | :---------------------------------------------------------------------------------------------- |
+| **D1 Database Binding** | `DB`           | Yes      | Connects the edge backend functions to your Cloudflare D1 database. Must be named exactly `DB`. |
+
+- **How to configure on Cloudflare Pages:**
+  1. Go to your Pages project -> **Settings** -> **Bindings**.
+  2. Click **Add binding** -> Choose **D1 database**.
+  3. Set **Variable name** to `DB` and select your D1 database (e.g. `takenote-db`).
+  4. Save and deploy.
+
+### 2. Environment Variables
+
+| Variable       | Type                 | Required | Description                                                                                                             |
+| :------------- | :------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------- |
+| `APP_PASSWORD` | String (SHA-256 Hex) | No       | **SHA-256 hash** (64 hex characters) of your unlock password. If omitted, the app will run publicly without a password. |
+
+- **How to generate your `APP_PASSWORD` hash:**
+  1. Hash your desired password using any SHA-256 tool:
+     - Online: [emn178.github.io/online-tools/sha256/](https://emn178.github.io/online-tools/sha256.html)
+     - Terminal: `echo -n "your_password" | sha256sum`
+  2. Copy the resulting 64-character hex string (e.g. `8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92`).
+  3. Add it to Cloudflare Pages:
+     - Go to your Pages project -> **Settings** -> **Environment variables**.
+     - Add `APP_PASSWORD` with your 64-character hash value.
+
+### 3. Local Development (`npm run dev`)
+
+- In local development, if `APP_PASSWORD` is not set in `.env`, the dev server defaults to test password **`123456`**.
+- To test with your own custom password locally, create a `.env` file at the root:
+  ```env
+  APP_PASSWORD=8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+  ```
 
 ## Credits & Acknowledgements
 
