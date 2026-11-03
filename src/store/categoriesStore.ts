@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { CategoryItem } from '@/types';
+import { api } from '@/services/api';
 
 const _swapCategories = (categories: CategoryItem[], categoryId: number, destinationId: number) => {
   const newCategories = [...categories];
@@ -51,9 +52,10 @@ export interface CategoriesStoreState {
   swapCategories: (payload: { categoryId: number; destinationId: number }) => void;
   setCategoryEdit: (payload: { id: string; tempName: string }) => void;
   loadCategories: () => void;
+  syncCategoriesWithD1: () => Promise<void>;
 }
 
-export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
+export const useCategoriesStore = create<CategoriesStoreState>((set, get) => ({
   categories: loadInitialCategories(),
   editingCategory: {
     id: '',
@@ -69,6 +71,7 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
     set((state) => {
       const updated = [...state.categories, category];
       saveCategoriesToLocalStorage(updated);
+      api.saveCategory(category);
       return { categories: updated };
     });
   },
@@ -80,6 +83,7 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
       const toAdd = categories.filter(({ name }) => !categoryNames.has(name));
       const updated = [...state.categories, ...toAdd];
       saveCategoriesToLocalStorage(updated);
+      if (toAdd.length > 0) api.saveCategories(toAdd);
       return { categories: updated };
     });
   },
@@ -88,6 +92,7 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
     set((state) => {
       const updated = state.categories.map((c) => (c.id === category.id ? { ...c, name: category.name } : c));
       saveCategoriesToLocalStorage(updated);
+      api.saveCategory(category);
       return { categories: updated };
     });
   },
@@ -96,6 +101,7 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
     set((state) => {
       const updated = state.categories.filter((category) => category.id !== categoryId);
       saveCategoriesToLocalStorage(updated);
+      api.deleteCategory(categoryId);
       return { categories: updated };
     });
   },
@@ -116,6 +122,7 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
     set((state) => {
       const updated = _swapCategories(state.categories, categoryId, destinationId);
       saveCategoriesToLocalStorage(updated);
+      api.saveCategories(updated);
       return { categories: updated };
     });
   },
@@ -131,5 +138,24 @@ export const useCategoriesStore = create<CategoriesStoreState>((set) => ({
       categories: loadInitialCategories(),
       loading: false,
     });
+  },
+
+  syncCategoriesWithD1: async () => {
+    try {
+      const d1Categories = await api.fetchCategories();
+      if (!d1Categories) return;
+
+      const currentCats = get().categories;
+      if (d1Categories.length === 0) {
+        if (currentCats.length > 0) {
+          await api.saveCategories(currentCats);
+        }
+      } else {
+        saveCategoriesToLocalStorage(d1Categories);
+        set({ categories: d1Categories });
+      }
+    } catch (err) {
+      console.warn('Could not sync categories with D1:', err);
+    }
   },
 }));

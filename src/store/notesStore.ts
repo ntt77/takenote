@@ -5,6 +5,7 @@ import { Folder, NotesSortKey } from '@/utils/enums';
 import { NoteItem } from '@/types';
 import { isDraftNote } from '@/utils/helpers';
 import { getNotesSorter } from '@/utils/notesSortStrategies';
+import { api } from '@/services/api';
 
 export const scratchpadNote: NoteItem = {
   id: crypto.randomUUID(),
@@ -120,6 +121,7 @@ export interface NotesStoreState {
   searchValue: string;
   error: string;
   loading: boolean;
+  syncing: boolean;
 
   // Actions
   addNote: (note: NoteItem) => void;
@@ -142,11 +144,12 @@ export interface NotesStoreState {
   pruneNotes: () => void;
   searchNotes: (searchValue: string) => void;
   loadNotes: (sortOrderKey?: NotesSortKey) => void;
+  syncNotesWithD1: () => Promise<void>;
 }
 
 const initial = loadInitialNotes();
 
-export const useNotesStore = create<NotesStoreState>((set) => ({
+export const useNotesStore = create<NotesStoreState>((set, get) => ({
   notes: initial.notes,
   activeFolder: Folder.ALL,
   activeCategoryId: '',
@@ -155,6 +158,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
   searchValue: '',
   error: '',
   loading: false,
+  syncing: false,
 
   addNote: (note) => {
     set((state) => {
@@ -162,6 +166,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
       if (!draftNote) {
         const updated = [...state.notes, note];
         saveNotesToLocalStorage(updated);
+        api.saveNote(note);
         return { notes: updated };
       }
       return {};
@@ -176,14 +181,18 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
       }));
       const updated = [...state.notes, ...toAdd];
       saveNotesToLocalStorage(updated);
+      api.saveNotes(toAdd);
       return { notes: updated };
     });
   },
 
   updateNote: (note) => {
     set((state) => {
-      const updated = state.notes.map((n) => (n.id === note.id ? { ...n, text: note.text, lastUpdated: note.lastUpdated } : n));
+      const targetNote = state.notes.find((n) => n.id === note.id);
+      const updatedNote = targetNote ? { ...targetNote, text: note.text, lastUpdated: note.lastUpdated } : note;
+      const updated = state.notes.map((n) => (n.id === note.id ? updatedNote : n));
       saveNotesToLocalStorage(updated);
+      api.debouncedSaveNote(updatedNote);
       return { notes: updated };
     });
   },
@@ -191,6 +200,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
   updateNotes: ({ notes, activeFolder, activeCategoryId, sortOrderKey }) => {
     const activeNoteId = getFirstNoteId(activeFolder, notes, activeCategoryId, sortOrderKey);
     saveNotesToLocalStorage(notes);
+    api.saveNotes(notes);
     set({
       notes,
       activeNoteId,
@@ -203,6 +213,7 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
       const updated = state.notes.filter((note) => !noteIds.includes(note.id));
       const newActiveId = getNewActiveNoteId(updated, state.activeNoteId, state.activeCategoryId, state.activeFolder);
       saveNotesToLocalStorage(updated);
+      api.deleteNotes(noteIds);
       return {
         notes: updated,
         activeNoteId: newActiveId,
@@ -214,21 +225,42 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
   addCategoryToNote: ({ categoryId, noteId }) => {
     set((state) => {
       const isMulti = state.selectedNotesIds.includes(noteId);
+      const affectedNotes: NoteItem[] = [];
       const updated = state.notes.map((note) => {
         if (isMulti) {
-          return state.selectedNotesIds.includes(note.id) ? { ...note, category: categoryId } : note;
+          if (state.selectedNotesIds.includes(note.id)) {
+            const mod = { ...note, category: categoryId };
+            affectedNotes.push(mod);
+            return mod;
+          }
+          return note;
         }
-        return note.id === noteId ? { ...note, category: categoryId } : note;
+        if (note.id === noteId) {
+          const mod = { ...note, category: categoryId };
+          affectedNotes.push(mod);
+          return mod;
+        }
+        return note;
       });
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return { notes: updated };
     });
   },
 
   removeCategoryFromNotes: (categoryId) => {
     set((state) => {
-      const updated = state.notes.map((note) => (note.category === categoryId ? { ...note, category: '' } : note));
+      const affectedNotes: NoteItem[] = [];
+      const updated = state.notes.map((note) => {
+        if (note.category === categoryId) {
+          const mod = { ...note, category: '' };
+          affectedNotes.push(mod);
+          return mod;
+        }
+        return note;
+      });
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return { notes: updated };
     });
   },
@@ -271,43 +303,77 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
 
   assignFavoriteToNotes: (noteId) => {
     set((state) => {
+      const affectedNotes: NoteItem[] = [];
       const updated = state.notes.map((note) => {
         if (state.selectedNotesIds.includes(noteId)) {
-          return state.selectedNotesIds.includes(note.id) ? { ...note, favorite: true } : note;
+          if (state.selectedNotesIds.includes(note.id)) {
+            const mod = { ...note, favorite: true };
+            affectedNotes.push(mod);
+            return mod;
+          }
+          return note;
         }
         if (note.id === noteId) {
-          return { ...note, favorite: true };
+          const mod = { ...note, favorite: true };
+          affectedNotes.push(mod);
+          return mod;
         }
         return note;
       });
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return { notes: updated };
     });
   },
 
   toggleFavoriteNotes: (noteId) => {
     set((state) => {
+      const affectedNotes: NoteItem[] = [];
       const updated = state.selectedNotesIds.includes(noteId)
-        ? state.notes.map((note) => (state.selectedNotesIds.includes(note.id) ? { ...note, favorite: !note.favorite } : note))
-        : state.notes.map((note) => (note.id === noteId ? { ...note, favorite: !note.favorite } : note));
+        ? state.notes.map((note) => {
+            if (state.selectedNotesIds.includes(note.id)) {
+              const mod = { ...note, favorite: !note.favorite };
+              affectedNotes.push(mod);
+              return mod;
+            }
+            return note;
+          })
+        : state.notes.map((note) => {
+            if (note.id === noteId) {
+              const mod = { ...note, favorite: !note.favorite };
+              affectedNotes.push(mod);
+              return mod;
+            }
+            return note;
+          });
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return { notes: updated };
     });
   },
 
   assignTrashToNotes: (noteId) => {
     set((state) => {
+      const affectedNotes: NoteItem[] = [];
       const updated = state.notes.map((note) => {
         if (state.selectedNotesIds.includes(noteId)) {
-          return state.selectedNotesIds.includes(note.id) ? { ...note, trash: true } : note;
+          if (state.selectedNotesIds.includes(note.id)) {
+            const mod = { ...note, trash: true };
+            affectedNotes.push(mod);
+            return mod;
+          }
+          return note;
         }
         if (note.id === noteId) {
-          return { ...note, trash: true };
+          const mod = { ...note, trash: true };
+          affectedNotes.push(mod);
+          return mod;
         }
         return note;
       });
       const newActiveId = getNewActiveNoteId(updated, noteId, state.activeCategoryId, state.activeFolder);
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return {
         notes: updated,
         activeNoteId: newActiveId,
@@ -318,11 +384,27 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
 
   toggleTrashNotes: (noteId) => {
     set((state) => {
+      const affectedNotes: NoteItem[] = [];
       const updated = state.selectedNotesIds.includes(noteId)
-        ? state.notes.map((note) => (state.selectedNotesIds.includes(note.id) ? { ...note, trash: !note.trash } : note))
-        : state.notes.map((note) => (note.id === noteId ? { ...note, trash: !note.trash } : note));
+        ? state.notes.map((note) => {
+            if (state.selectedNotesIds.includes(note.id)) {
+              const mod = { ...note, trash: !note.trash };
+              affectedNotes.push(mod);
+              return mod;
+            }
+            return note;
+          })
+        : state.notes.map((note) => {
+            if (note.id === noteId) {
+              const mod = { ...note, trash: !note.trash };
+              affectedNotes.push(mod);
+              return mod;
+            }
+            return note;
+          });
       const newActiveId = getNewActiveNoteId(updated, noteId, state.activeCategoryId, state.activeFolder);
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return {
         notes: updated,
         activeNoteId: newActiveId,
@@ -333,16 +415,25 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
 
   unassignTrashFromNotes: (noteId) => {
     set((state) => {
+      const affectedNotes: NoteItem[] = [];
       const updated = state.notes.map((note) => {
         if (state.selectedNotesIds.includes(noteId)) {
-          return state.selectedNotesIds.includes(note.id) && note.trash ? { ...note, trash: false } : note;
+          if (state.selectedNotesIds.includes(note.id) && note.trash) {
+            const mod = { ...note, trash: false };
+            affectedNotes.push(mod);
+            return mod;
+          }
+          return note;
         }
         if (note.id === noteId) {
-          return { ...note, trash: false };
+          const mod = { ...note, trash: false };
+          affectedNotes.push(mod);
+          return mod;
         }
         return note;
       });
       saveNotesToLocalStorage(updated);
+      if (affectedNotes.length > 0) api.saveNotes(affectedNotes);
       return { notes: updated };
     });
   },
@@ -361,16 +452,24 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
 
   permanentlyEmptyTrash: () => {
     set((state) => {
+      const trashedNotes = state.notes.filter((note) => note.trash);
       const updated = state.notes.filter((note) => !note.trash);
       saveNotesToLocalStorage(updated);
+      if (trashedNotes.length > 0) {
+        api.deleteNotes(trashedNotes.map((n) => n.id));
+      }
       return { notes: updated };
     });
   },
 
   pruneNotes: () => {
     set((state) => {
+      const toDelete = state.notes.filter((note) => !note.scratchpad && note.text === '' && !state.selectedNotesIds.includes(note.id));
       const updated = state.notes.filter((note) => note.scratchpad || note.text !== '' || state.selectedNotesIds.includes(note.id));
       saveNotesToLocalStorage(updated);
+      if (toDelete.length > 0) {
+        api.deleteNotes(toDelete.map((n) => n.id));
+      }
       return { notes: updated };
     });
   },
@@ -387,5 +486,35 @@ export const useNotesStore = create<NotesStoreState>((set) => ({
       selectedNotesIds: loaded.selectedNotesIds,
       loading: false,
     });
+  },
+
+  syncNotesWithD1: async () => {
+    set({ syncing: true });
+    try {
+      const d1Notes = await api.fetchNotes();
+      if (!d1Notes) {
+        set({ syncing: false });
+        return;
+      }
+
+      const currentNotes = get().notes;
+      if (d1Notes.length === 0) {
+        if (currentNotes.length > 0) {
+          await api.saveNotes(currentNotes);
+        }
+      } else {
+        saveNotesToLocalStorage(d1Notes);
+        const activeNoteId = getFirstNoteId(get().activeFolder, d1Notes, get().activeCategoryId);
+        set({
+          notes: d1Notes,
+          activeNoteId: activeNoteId || d1Notes[0]?.id || '',
+          selectedNotesIds: activeNoteId ? [activeNoteId] : d1Notes[0]?.id ? [d1Notes[0].id] : [],
+        });
+      }
+    } catch (err) {
+      console.warn('Could not sync notes with D1:', err);
+    } finally {
+      set({ syncing: false });
+    }
   },
 }));

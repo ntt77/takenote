@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { MantineProvider, Box } from '@mantine/core';
@@ -19,8 +20,13 @@ dayjs.locale(getDayJsLocale(navigator.language));
 
 export const App = () => {
   const { sidebarVisible } = useSettingsStore();
-  const { activeFolder, activeCategoryId } = useNotesStore();
-  const { categories, swapCategories } = useCategoriesStore();
+  const { activeFolder, activeCategoryId, syncNotesWithD1 } = useNotesStore();
+  const { categories, swapCategories, syncCategoriesWithD1 } = useCategoriesStore();
+
+  useEffect(() => {
+    syncNotesWithD1();
+    syncCategoriesWithD1();
+  }, [syncNotesWithD1, syncCategoriesWithD1]);
 
   const activeCategory = getActiveCategory(categories, activeCategoryId);
 

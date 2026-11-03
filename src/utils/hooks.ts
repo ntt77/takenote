@@ -12,13 +12,15 @@ export function useKey(key: string, action: () => void) {
   });
 
   useEffect(() => {
-    mousetrap.bindGlobal(key, (event: Event) => {
+    (mousetrap as any).bindGlobal(key, (event: Event) => {
       event.preventDefault();
       if (actionRef.current) {
         actionRef.current();
       }
     });
 
-    return () => mousetrap.unbind(key);
+    return () => {
+      mousetrap.unbind(key);
+    };
   }, [key]);
 }

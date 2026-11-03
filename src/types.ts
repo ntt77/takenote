@@ -25,5 +25,5 @@ export interface CategoryItem {
 // React Event Helpers
 //==============================================================================
 
-export type ReactDragEvent = DragEvent<HTMLDivElement>;
+export type ReactDragEvent = DragEvent<HTMLElement>;
 export type ReactSubmitEvent = SyntheticEvent;
