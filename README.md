@@ -36,37 +36,16 @@
 
 ## Cloudflare Deployment & Environment Variables
 
-TakeNote runs on **Cloudflare Pages** with **Pages Functions** and a **Cloudflare D1** SQLite database.
+TakeNote runs on **Cloudflare Workers (with Static Assets)** and a **Cloudflare D1** SQLite database.
 
-### 1. Database Binding (Required for Cloud sync)
+| Type                | Name                 | Required | Description                                                                                                             |
+| :------------------ | :------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------- |
+| D1 Database Binding | `DB`                 | Yes      | Connects the edge backend functions to your Cloudflare D1 database. Must be named exactly `DB`.                         |
+| `APP_PASSWORD`      | String (SHA-256 Hex) | No       | **SHA-256 hash** (64 hex characters) of your unlock password. If omitted, the app will run publicly without a password. |
 
-| Type                    | Name / Binding | Required | Description                                                                                     |
-| :---------------------- | :------------- | :------- | :---------------------------------------------------------------------------------------------- |
-| **D1 Database Binding** | `DB`           | Yes      | Connects the edge backend functions to your Cloudflare D1 database. Must be named exactly `DB`. |
-
-- **How to configure on Cloudflare Pages:**
-  1. Go to your Pages project -> **Settings** -> **Bindings**.
-  2. Click **Add binding** -> Choose **D1 database**.
-  3. Set **Variable name** to `DB` and select your D1 database (e.g. `takenote-db`).
-  4. Save and deploy.
-
-### 2. Environment Variables
-
-| Variable       | Type                 | Required | Description                                                                                                             |
-| :------------- | :------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------- |
-| `APP_PASSWORD` | String (SHA-256 Hex) | No       | **SHA-256 hash** (64 hex characters) of your unlock password. If omitted, the app will run publicly without a password. |
-
-- **How to generate your `APP_PASSWORD` hash:**
-  1. Hash your desired password using any SHA-256 tool:
-     - Online: [emn178.github.io/online-tools/sha256/](https://emn178.github.io/online-tools/sha256.html)
-     - Terminal: `echo -n "your_password" | sha256sum`
-  2. Copy the resulting 64-character hex string (e.g. `8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92`).
-  3. Add it to Cloudflare Pages:
-     - Go to your Pages project -> **Settings** -> **Environment variables**.
-     - Add `APP_PASSWORD` with your 64-character hash value.
-
-### 3. Local Development (`npm run dev`)
-
+- **How to generate your `APP_PASSWORD` hash:** Hash your desired password using any SHA-256 tool:
+  - Online: [emn178.github.io/online-tools/sha256/](https://emn178.github.io/online-tools/sha256.html)
+  - Terminal: `echo -n "your_password" | sha256sum`
 - In local development, if `APP_PASSWORD` is not set in `.env`, the dev server defaults to test password **`123456`**.
 - To test with your own custom password locally, create a `.env` file at the root:
   ```env

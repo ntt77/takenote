@@ -24,8 +24,7 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\"",
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix",
-    "pages:dev": "wrangler pages dev --d1=DB=takenote-db",
-    "pages:deploy": "npm run build && wrangler pages deploy dist",
+    "deploy": "npm run build && wrangler deploy",
     "d1:create": "wrangler d1 create takenote-db",
     "d1:migrate": "wrangler d1 execute takenote-db --remote --file=schema.sql"
   },
